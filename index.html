@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Governance Hub</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&amp;family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600&amp;display=swap" rel="stylesheet">
+  <style>
+    /* ── Pariveda palette ── */
+    :root{
+      --midnight:#010F31; --logo:#1C2C80; --indigo:#1A57D6; --vibrant:#2C75FF;
+      --bg:#F7F8FC; --card:#FFFFFF; --brd:#E9EAEC; --text:#101935; --t2:#5A6072;
+    }
+    *{margin:0;padding:0;box-sizing:border-box}
+    body{font-family:'DM Sans',-apple-system,sans-serif;background:var(--bg);color:var(--text)}
+
+    /* ── Sticky global nav ── */
+    .spa-navbar{position:sticky;top:0;z-index:100;background:var(--card);
+      border-bottom:1px solid var(--brd);box-shadow:0 1px 4px rgba(1,15,49,.05)}
+    .spa-nav-inner{max-width:1080px;margin:0 auto;padding:11px 40px;
+      display:flex;align-items:center;gap:16px}
+    .spa-brand{font-family:'Outfit';font-weight:800;font-size:16px;color:var(--midnight);
+      white-space:nowrap;display:flex;align-items:center;gap:9px;letter-spacing:-.2px}
+    .spa-brand .dot{width:11px;height:11px;border-radius:50%;background:var(--logo);flex-shrink:0}
+    .spa-links{display:flex;gap:2px;flex-wrap:wrap;flex:1;justify-content:flex-end}
+    .pn{font-family:'DM Sans';font-size:14px;font-weight:500;color:var(--t2);
+      text-decoration:none;padding:8px 14px;border-radius:100px;transition:all .2s;
+      white-space:nowrap;position:relative;cursor:pointer;background:none;border:none}
+    .pn:hover{color:var(--text);background:rgba(1,15,49,.04)}
+    .pn.active{color:var(--midnight);font-weight:600;background:rgba(28,44,128,.09)}
+    .pn.active::after{content:'';position:absolute;bottom:2px;left:50%;transform:translateX(-50%);
+      width:60%;height:2px;background:var(--logo);border-radius:2px}
+    .pn.disabled{opacity:.38;cursor:default}
+    .pn.disabled:hover{background:none;color:var(--t2)}
+
+    /* ── Content frame ── */
+    .spa-frame-wrap{width:100%}
+    #spa-frame{display:block;width:100%;border:0;background:transparent;min-height:84vh}
+
+    @media(max-width:1024px){
+      .spa-nav-inner{flex-direction:column;align-items:stretch;gap:10px}
+      .spa-links{justify-content:flex-start;overflow-x:auto;flex-wrap:nowrap;-webkit-overflow-scrolling:touch}
+    }
+    @media(max-width:640px){
+      .spa-nav-inner{padding:10px 16px}
+      .pn{padding:6px 11px;font-size:12px}
+    }
+  </style>
+</head>
+<body>
+  <header class="spa-navbar">
+    <div class="spa-nav-inner">
+      <div class="spa-brand"><span class="dot"></span>AI Governance Hub</div>
+      <nav class="spa-links" id="spa-links"></nav>
+    </div>
+  </header>
+
+  <main class="spa-frame-wrap">
+    <iframe id="spa-frame" title="AI Governance Hub content"></iframe>
+  </main>
+
+  <script>
+  (function(){
+    // Routable pages (hash key -> file). Add a new page here once and it's wired.
+    var PAGES = {
+      governance: 'ai_governance_process_poc.html',
+      risk:       'risk_profile_reference.html',
+      catalog:    'ai_solution_inventory_poc.html',
+      inventory:  'ai_inventory_list_poc.html',
+      intake:     'ai-risk-value-calculator.html'
+    };
+    // Nav order. key:null = placeholder (not built yet).
+    var NAV = [
+      {key:null,         label:'Home'},
+      {key:null,         label:'Our Team'},
+      {key:'governance', label:'AI Governance Process'},
+      {key:'risk',       label:'Risk Profile Reference'},
+      {key:'catalog',    label:'AI Solution Catalog'},
+      {key:'inventory',  label:'AI Inventory List'},
+      {key:null,         label:'FAQs'}
+    ];
+    var DEFAULT = 'governance';
+
+    var fileToKey = {};
+    Object.keys(PAGES).forEach(function(k){ fileToKey[PAGES[k]] = k; });
+
+    var frame = document.getElementById('spa-frame');
+    var linksEl = document.getElementById('spa-links');
+    var pills = {};
+    var currentFile = null;
+
+    // Build nav
+    NAV.forEach(function(item){
+      var a = document.createElement(item.key ? 'a' : 'span');
+      a.className = 'pn' + (item.key ? '' : ' disabled');
+      a.textContent = item.label;
+      if(item.key){
+        a.href = '#' + item.key;
+        pills[item.key] = a;
+      }
+      linksEl.appendChild(a);
+    });
+
+    function setActive(key){
+      Object.keys(pills).forEach(function(k){
+        pills[k].classList.toggle('active', k === key);
+      });
+    }
+
+    function route(){
+      var key = (location.hash || '').replace('#','') || DEFAULT;
+      var file = PAGES[key];
+      if(!file){ setActive(null); return; }   // unknown hash
+      if(currentFile !== file){
+        currentFile = file;
+        frame.src = file;
+        window.scrollTo(0, 0);
+      }
+      setActive(key);
+    }
+
+    // Keep nav in sync when a link *inside* the iframe navigates to another page
+    frame.addEventListener('load', function(){
+      var file;
+      try { file = frame.contentWindow.location.pathname.split('/').pop(); }
+      catch(e){ return; } // cross-origin (e.g. file://) — ignore, hash drives state
+      if(file && file !== currentFile && fileToKey[file]){
+        currentFile = file;
+        var key = fileToKey[file];
+        history.replaceState(null, '', '#' + key);
+        setActive(key);
+      }
+    });
+
+    // Auto-size the frame to its content (pages post their height)
+    window.addEventListener('message', function(e){
+      var d = e.data;
+      if(d && typeof d === 'object' &&
+         (d.type === 'spa-resize' || d.type === 'iframe-resize' || d.type === 'resize') &&
+         d.height){
+        frame.style.height = Math.max(d.height, 200) + 'px';
+      }
+    });
+
+    window.addEventListener('hashchange', route);
+    route();
+  })();
+  </script>
+</body>
+</html>

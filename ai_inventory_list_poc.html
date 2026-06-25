@@ -1,0 +1,953 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Inventory List | AI Center of Excellence</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&amp;family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600&amp;display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <style>
+  /* ── V2 THEME SHELL ── */
+  :root{
+    --midnight:#010F31;--bg:#F7F8FC;--card:#FFFFFF;--text:#101935;
+    --t2:#5A6072;--t3:#9CA0AB;--brd:#E9EAEC;--brd2:#C7C9D1;
+    --blue:#2C75FF;--purple:#1C2C80;--green:#1A57D6;--teal:#2C75FF;
+    --amber:#FF861E;--mag:#F95353;--teal-cta:#2C75FF;--r:12px;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:'DM Sans',-apple-system,sans-serif;background:var(--bg);color:var(--text);line-height:1.6;font-size:16px}
+  h1,h2,h3,h4{font-family:'Outfit',sans-serif}
+  
+  /* ── PILL NAV ── */
+  .pill-links{display:flex;gap:0;flex-wrap:wrap;width:100%;justify-content:space-between}
+  .pn{font-size:14px;font-weight:500;color:var(--t2);text-decoration:none;padding:8px 16px;border-radius:100px;transition:all .2s;white-space:nowrap;position:relative}
+  .pn:hover{color:var(--text);background:rgba(1,15,49,.04)}
+  .pn.active{color:var(--midnight);font-weight:600;background:rgba(1,15,49,.06)}
+  .pn::after{content:'';position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:0;height:2px;background:var(--midnight);border-radius:2px;transition:width .25s}
+  .pn:hover::after,.pn.active::after{width:60%}
+  .pill-nav-inline{background:var(--card);border:1px solid var(--brd);border-radius:var(--r);padding:12px 24px;display:flex;align-items:center;justify-content:space-between;box-shadow:0 1px 4px rgba(0,0,0,.04);position:sticky;top:0;z-index:50}
+  
+  /* ── CONTENT ── */
+  .content{max-width:1080px;margin:0 auto;padding:0 40px}
+  
+  /* ── HERO ── */
+  .hero{margin-top:20px;position:relative;overflow:hidden;border-radius:var(--r)}
+  .hero-bg{position:absolute;inset:0;background-size:cover;background-position:center 60%}
+  .hero-bg::after{content:'';position:absolute;inset:0;background:#1C2C80}
+  .hero-inner{position:relative;z-index:2;padding:32px 40px 28px}
+  .hero h1{font-size:34px;font-weight:800;color:#fff;letter-spacing:-.4px;line-height:1.1}
+  .hero h1 span{display:block;font-weight:600;font-size:15px;letter-spacing:.3px;margin-bottom:8px;opacity:1;text-shadow:0 1px 3px rgba(0,0,0,.4)}
+  .hero p{font-size:16px;color:#fff;max-width:640px;margin-top:12px;line-height:1.6;font-weight:500;text-shadow:0 1px 3px rgba(0,0,0,.4)}
+  
+  /* ── STACKED PANELS ── */
+  .content-wrapper{background:var(--card);border:1px solid var(--brd);border-radius:var(--r);padding:32px 36px;margin-top:20px}
+  .content-wrapper .panel{margin-bottom:32px}
+  .content-wrapper .panel:last-child{margin-bottom:0}
+  .section-label{font-family:'Outfit';font-size:15px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:var(--midnight);margin:0 0 18px;display:flex;align-items:center;gap:10px}
+  .section-label::after{content:'';flex:1;height:1px;background:var(--brd)}
+  
+  /* ── INTRO ── */
+  .intro-text{font-size:16px;color:var(--t2);line-height:1.7}
+  .intro-text strong{color:var(--text);font-weight:600}
+  .intro-text h3{font-family:'Outfit';font-size:17px;font-weight:700;color:var(--midnight);margin:20px 0 8px}
+  .intro-text ol{padding-left:22px;margin-top:8px}
+  .intro-text ol li{margin-bottom:6px}
+  .intro-text a{color:var(--midnight);font-weight:600;text-decoration:underline}
+  .intro-text a:hover{color:var(--mag)}
+  .intro-text .note{background:var(--bg);border:1px solid var(--brd);border-left:3px solid var(--teal-cta);border-radius:8px;padding:12px 14px;margin-top:14px;font-size:14px}
+  
+  /* ── KPI STRIP ── */
+  .kpi-strip{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+  .kpi-card{background:var(--bg);border:1px solid var(--brd);border-radius:var(--r);padding:20px 22px;transition:all .25s}
+  .kpi-card:hover{box-shadow:0 4px 16px rgba(1,15,49,.06);border-color:var(--brd2);transform:translateY(-2px)}
+  .kpi-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1.2px;color:var(--midnight);margin-bottom:6px}
+  .kpi-num{font-family:'Outfit';font-size:36px;font-weight:800;color:var(--midnight);line-height:1}
+  .kpi-sub{font-size:12px;color:var(--midnight);margin-top:4px}
+  .kpi-sub .kpi-accent{font-weight:700;color:var(--midnight)}
+  
+  /* ── ACTION BAR (filters + CRUD buttons) ── */
+  .action-bar{background:var(--card);border:1px solid var(--brd);border-radius:var(--r);padding:16px 20px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+  .action-bar .search-wrap{position:relative;flex:1;min-width:220px}
+  .action-bar .search-wrap svg{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--t3)}
+  .action-bar input[type="text"]{width:100%;padding:8px 12px 8px 36px;border:1px solid var(--brd);border-radius:8px;font-family:'DM Sans';font-size:13px;color:var(--text);background:var(--bg);transition:border-color .2s;outline:none}
+  .action-bar input[type="text"]:focus{border-color:var(--blue)}
+  .action-bar select{padding:8px 28px 8px 12px;border:1px solid var(--brd);border-radius:8px;font-family:'DM Sans';font-size:12px;color:var(--text);background:var(--bg);cursor:pointer;outline:none;appearance:none;background-image:url("data:image/svg+xml,%3Csvg width='10' height='6' viewBox='0 0 10 6' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%239CA0AB' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center;transition:border-color .2s}
+  .action-bar select:focus{border-color:var(--blue)}
+  .action-bar .btn-reset{padding:8px 16px;border:1px solid var(--brd);border-radius:8px;background:var(--card);font-family:'DM Sans';font-size:12px;font-weight:600;color:var(--t2);cursor:pointer;transition:all .2s}
+  .action-bar .btn-reset:hover{border-color:var(--midnight);color:var(--midnight);background:rgba(1,15,49,.03)}
+  .action-bar .divider{width:1px;height:28px;background:var(--brd);margin:0 4px}
+  .btn-sm{display:inline-flex;align-items:center;gap:6px;padding:8px 14px;border-radius:8px;font-family:'Outfit';font-size:12px;font-weight:600;border:none;cursor:pointer;transition:all .2s;white-space:nowrap}
+  .btn-primary{background:var(--midnight);color:#fff}
+  .btn-primary:hover{background:#1C2C80;box-shadow:0 4px 12px rgba(1,15,49,.2)}
+  .btn-outline{background:var(--card);color:var(--midnight);border:1px solid var(--brd)}
+  .btn-outline:hover{border-color:var(--midnight);background:rgba(1,15,49,.03)}
+  .btn-outline.danger{color:var(--mag)}
+  .btn-outline.danger:hover{border-color:var(--mag);background:rgba(249,83,83,.04)}
+  
+  /* ── DETAIL TABLE ── */
+  .table-wrap{border:1px solid var(--brd);border-radius:var(--r);overflow:hidden}
+  .table-scroll{max-height:680px;overflow-y:auto}
+  .detail-table{width:100%;border-collapse:collapse}
+  .detail-table thead{position:sticky;top:0;z-index:2}
+  .detail-table th{background:var(--midnight);color:#fff;font-family:'Outfit';font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.8px;padding:12px 14px;text-align:left;cursor:pointer;user-select:none;white-space:nowrap;border-bottom:2px solid rgba(255,255,255,.1)}
+  .detail-table th:hover{background:#1C2C80}
+  .detail-table th .sort-ic{display:inline-block;margin-left:4px;opacity:.4;font-size:10px}
+  .detail-table th.sorted .sort-ic{opacity:1}
+  .detail-table td{padding:12px 14px;font-size:13px;color:var(--text);border-bottom:1px solid var(--brd);vertical-align:top;line-height:1.5}
+  .detail-table tbody tr{cursor:pointer;transition:background .15s}
+  .detail-table tbody tr:hover{background:rgba(1,15,49,.025)}
+  .detail-table tbody tr:nth-child(even){background:var(--bg)}
+  .detail-table tbody tr:nth-child(even):hover{background:rgba(1,15,49,.04)}
+  .td-vendor{font-weight:600;color:var(--midnight)}
+  .td-tool{color:var(--t2);font-size:12px}
+  .td-desc{color:var(--t2);font-size:12.5px;max-width:380px}
+  .td-note{color:var(--t2);font-size:12px;max-width:260px;font-style:italic}
+  .no-results{padding:40px 20px;text-align:center;color:var(--t3);font-size:14px}
+  .table-count{font-size:12px;color:var(--t2);padding:10px 14px;background:var(--bg);border-top:1px solid var(--brd)}
+  
+  /* ── STATUS PILLS ── */
+  .status-pill{display:inline-block;padding:3px 10px;border-radius:100px;font-size:10px;font-weight:700;letter-spacing:.3px;text-transform:uppercase;white-space:nowrap}
+  .status-pill.approved{background:#dcfce7;color:#166534}
+  .status-pill.not-approved{background:#fee2e2;color:#991b1b}
+  .status-pill.under-review{background:#fef3c7;color:#92400e}
+  .status-pill.under-legal-review{background:#ffedd5;color:#9a3412}
+  .status-pill.poc,.status-pill.pilot,.status-pill.approved-for-poc{background:#e0e7ff;color:#3730a3}
+  .status-pill.business-case{background:#ede9fe;color:#5b21b6}
+  .status-pill.approved-api{background:#dcfce7;color:#166534}
+  .status-pill.unknown{background:#f3f4f6;color:#6b7280}
+  
+  /* ── MODAL ── */
+  .modal-backdrop{display:none;position:fixed;inset:0;z-index:999;background:rgba(1,15,49,.35);backdrop-filter:blur(4px);align-items:center;justify-content:center}
+  .modal-backdrop.open{display:flex}
+  .modal{background:var(--card);border-radius:var(--r);width:680px;max-width:92vw;max-height:88vh;overflow-y:auto;box-shadow:0 20px 60px rgba(1,15,49,.25)}
+  .modal-head{padding:22px 28px;border-bottom:1px solid var(--brd);display:flex;justify-content:space-between;align-items:flex-start;gap:16px}
+  .modal-head h3{font-family:'Outfit';font-size:20px;font-weight:700;color:var(--midnight);line-height:1.25;margin:0}
+  .modal-head-sub{font-size:12px;color:var(--t3);margin-top:3px;font-family:monospace}
+  .modal-close{width:32px;height:32px;border-radius:50%;border:1px solid var(--brd);background:var(--card);color:var(--t2);cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .2s}
+  .modal-close:hover{border-color:var(--midnight);color:var(--midnight)}
+  .modal-body{padding:22px 28px 16px}
+  .modal-field{margin-bottom:16px}
+  .modal-field label{display:block;font-family:'Outfit';font-size:11px;font-weight:700;color:var(--t2);text-transform:uppercase;letter-spacing:.8px;margin-bottom:6px}
+  .mf-val{font-size:14px;color:var(--text);line-height:1.6}
+  .mf-val.empty{color:var(--t3);font-style:italic}
+  .modal-field input,.modal-field textarea,.modal-field select{width:100%;padding:9px 12px;border:1px solid var(--brd2);border-radius:8px;font-family:'DM Sans';font-size:14px;color:var(--text);background:#fff;outline:none;transition:all .2s}
+  .modal-field textarea{resize:vertical;min-height:80px;line-height:1.55}
+  .modal-field input:focus,.modal-field textarea:focus,.modal-field select:focus{border-color:var(--midnight);box-shadow:0 0 0 3px rgba(1,15,49,.1)}
+  .modal-field select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg width='10' height='6' viewBox='0 0 10 6' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%239CA0AB' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;padding-right:34px}
+  .modal-grid-2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  .modal-foot{padding:16px 28px;border-top:1px solid var(--brd);background:var(--bg);display:flex;justify-content:space-between;align-items:center;gap:10px;border-radius:0 0 var(--r) var(--r)}
+  .modal-foot-left{display:flex;gap:8px}
+  .modal-foot-right{display:flex;gap:8px}
+  .btn-submit{padding:9px 20px;border-radius:8px;font-family:'Outfit';font-size:13px;font-weight:600;border:none;cursor:pointer;transition:all .2s}
+  .btn-submit.primary{background:var(--midnight);color:#fff}
+  .btn-submit.primary:hover{background:#1C2C80}
+  .btn-submit.primary:disabled{opacity:.6;cursor:wait}
+  .btn-submit.secondary{background:var(--card);color:var(--midnight);border:1px solid var(--brd)}
+  .btn-submit.secondary:hover{border-color:var(--midnight)}
+  .btn-submit.danger{background:#fff;color:var(--mag);border:1px solid var(--mag)}
+  .btn-submit.danger:hover{background:var(--mag);color:#fff}
+  
+  /* Delete confirmation */
+  .confirm-backdrop{display:none;position:fixed;inset:0;z-index:1001;background:rgba(1,15,49,.45);backdrop-filter:blur(4px);align-items:center;justify-content:center}
+  .confirm-backdrop.open{display:flex}
+  .confirm-box{background:#fff;border-radius:var(--r);width:440px;max-width:92vw;padding:26px 28px;box-shadow:0 20px 60px rgba(0,0,0,.25)}
+  .confirm-box h3{font-family:'Outfit';font-size:18px;font-weight:700;color:var(--mag);margin-bottom:8px}
+  .confirm-box p{font-size:14px;color:var(--t2);line-height:1.55}
+  .confirm-box p strong{color:var(--text)}
+  .confirm-btns{display:flex;justify-content:flex-end;gap:8px;margin-top:20px}
+  
+  /* ── CTA ── */
+  .cta{background:var(--card);border:1px solid var(--brd);border-radius:var(--r);margin:16px 0 28px;padding:22px 28px;display:flex;align-items:center;justify-content:space-between;gap:20px}
+  .cta h3{font-size:19px;font-weight:700;font-family:'Outfit'}
+  .cta p{font-size:15px;color:var(--t2);margin-top:2px}
+  .cta-btns{display:flex;gap:10px;flex-shrink:0}
+  .btn{display:inline-flex;align-items:center;gap:6px;padding:10px 22px;border-radius:var(--r);font-family:'Outfit';font-size:13px;font-weight:600;text-decoration:none;border:none;cursor:pointer;transition:all .2s;white-space:nowrap}
+  .btn-f{background:var(--midnight);color:#fff}
+  .btn-f:hover{background:#1C2C80;box-shadow:0 4px 16px rgba(1,15,49,.2)}
+  .btn-o{background:transparent;color:var(--midnight);border:1.5px solid var(--brd2)}
+  .btn-o:hover{border-color:var(--midnight);background:rgba(1,15,49,.03)}
+  
+  /* ── TOAST ── */
+  .toast{position:fixed;top:24px;right:24px;padding:12px 20px;border-radius:var(--r);color:#fff;font-family:'Outfit';font-size:13px;font-weight:600;z-index:9999;opacity:0;transition:opacity .3s;pointer-events:none;box-shadow:0 6px 20px rgba(0,0,0,.15);max-width:380px}
+  .toast.show{opacity:1}
+  .toast.ok{background:var(--green)}
+  .toast.err{background:var(--mag)}
+  .toast.info{background:var(--midnight)}
+  
+  /* ── RESPONSIVE ── */
+  @media(max-width:1024px){
+    .kpi-strip{grid-template-columns:repeat(2,1fr)}
+    .pill-nav-inline{flex-direction:column;gap:10px;align-items:flex-start}
+    .pill-links{overflow-x:auto;flex-wrap:nowrap;-webkit-overflow-scrolling:touch;width:100%}
+  }
+  @media(max-width:768px){
+    .kpi-strip{grid-template-columns:1fr 1fr}
+    .action-bar{flex-direction:column;align-items:stretch}
+    .action-bar .search-wrap{min-width:0}
+    .action-bar .divider{display:none}
+    .cta{flex-direction:column;text-align:center}
+    .cta-btns{justify-content:center}
+    .modal-grid-2{grid-template-columns:1fr}
+    .td-desc{max-width:none}
+  }
+  @media(max-width:640px){
+    .content{padding:0 16px}
+    .pn{padding:6px 10px;font-size:10px}
+    .hero-inner{padding:28px 22px 24px}
+    .hero h1{font-size:26px}
+    .content-wrapper{padding:24px 20px;margin-top:12px}
+    .content-wrapper .panel{margin-bottom:24px}
+    .kpi-strip{grid-template-columns:1fr}
+  }
+  </style>
+  </head>
+  <body>
+  
+  <div class="toast" id="toast"></div>
+  
+  <div class="content">
+  
+    <!-- HERO -->
+    <div class="hero">
+      <div class="hero-bg" style="background-image:url('');background-position:center 60%"></div>
+      <div class="hero-inner">
+        <h1><span>AI Governance &amp; Enablement</span>AI Inventory List</h1>
+        <p>Central view of Generative AI tools reviewed by the AI Governance &amp; Enablement Team. Search, filter, and manage the tools currently approved for use across the company.</p>
+      </div>
+    </div>
+  
+    <!-- PILL NAV -->
+    <div class="pill-nav-inline">
+      <div class="pill-links">
+        <a class="pn" href="" target="_blank">Home</a>
+        <a class="pn" href="" target="_blank">Our Team</a>
+        <a class="pn" href="ai_governance_process_poc.html">AI Governance Process</a>
+        <a class="pn" href="risk_profile_reference.html">Risk Profile Reference</a>
+        <a class="pn" href="ai_solution_inventory_poc.html">AI Solution Catalog</a>
+        <a class="pn active" href="ai_inventory_list_poc.html">AI Inventory List</a>
+        <a class="pn" href="" target="_blank">FAQs</a>
+      </div>
+    </div>
+  
+    <!-- CONTENT WRAPPER -->
+    <div class="content-wrapper">
+  
+      <!-- PANEL: Overview -->
+      <div class="panel">
+        <div class="section-label">Overview</div>
+        <div class="intro-text">
+          <p>This page provides a central view of Generative AI tools that have been reviewed by the AI Governance &amp; Enablement Team. It helps employees understand which tools have been evaluated and the conditions under which they are currently approved for use across the company, including legacy Vivint.</p>
+  
+          <h3>Start Here Before Introducing a New AI Tool or Vendor</h3>
+          <p>Please follow the steps below to ensure responsible, secure, and compliant AI use at the company:</p>
+          <ol>
+            <li><strong>Review</strong> the <a href="" target="_blank">AI Governance Hub</a> for guidance on AI oversight, risk assessment, standards, and approved processes.</li>
+            <li><strong>Follow</strong> The company's standard supply chain and vendor onboarding process for procurement and contracting.</li>
+            <li><strong>Check</strong> the AI Inventory List (below) to determine whether the tool or vendor has already been reviewed or approved.</li>
+            <li><strong>Contact</strong> the AI Governance &amp; Enablement Team at <a href="mailto:AIGovernance@parivedasolutions.com">AIGovernance@parivedasolutions.com</a> with questions about governance requirements or to request that a tool be added to the inventory once the vendor onboarding process has been initiated.</li>
+          </ol>
+          <div class="note"><strong>Note:</strong> The AI Governance &amp; Enablement Team, in collaboration with CIC, evaluates tools based on their AI capabilities and associated risks, as well as alignment with Pariveda's enterprise strategy and employee needs. This list is not intended to be a comprehensive inventory of all vendor AI capabilities.</div>
+        </div>
+      </div>
+  
+      <!-- PANEL: KPI Strip -->
+      <div class="panel">
+        <div class="section-label">At a Glance</div>
+        <div id="kpi-strip" class="kpi-strip"><div class="kpi-card"><div class="kpi-label">Total AI Tools Evaluated</div><div class="kpi-num">159</div></div><div class="kpi-card"><div class="kpi-label">Total Approved</div><div class="kpi-num">61</div><div class="kpi-sub">Approved for use</div></div><div class="kpi-card"><div class="kpi-label">Not Approved</div><div class="kpi-num">83</div><div class="kpi-sub">Not approved for use</div></div><div class="kpi-card"><div class="kpi-label">Under Review</div><div class="kpi-num">15</div><div class="kpi-sub">Pending governance review</div></div></div>
+      </div>
+  
+      <!-- PANEL: Inventory (toolbar + table) -->
+      <div class="panel">
+        <div class="section-label">AI Inventory List</div>
+  
+        <div class="action-bar" style="margin-bottom:14px">
+          <div class="search-wrap">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+            <input type="text" id="f-search" placeholder="Search by vendor, tool, description, or note…">
+          </div>
+          <select id="f-status"><option value="">All Statuses</option><option value="Approved">Approved</option><option value="Not Approved">Not Approved</option><option value="Under Review">Under Review</option></select>
+          <button class="btn-reset" id="btn-reset">Reset</button>
+        </div>
+  
+        <div class="table-wrap">
+          <div class="table-scroll">
+            <table class="detail-table">
+              <thead id="table-head"><tr><th class=" sorted" onclick="setSort('vendor')">Vendor<span class="sort-ic">▲</span></th><th class="" onclick="setSort('tool')">Tool<span class="sort-ic">▲</span></th><th class="" onclick="setSort('description')">Description<span class="sort-ic">▲</span></th><th class="" onclick="setSort('status')">Status<span class="sort-ic">▲</span></th><th class="" onclick="setSort('note')">Note<span class="sort-ic">▲</span></th></tr></thead>
+              <tbody id="table-body"><tr onclick="openModal('ai_4c8b7a6cdc4f')"><td><span class="td-vendor">01.AI</span></td><td><span class="td-tool">Yi</span></td><td><div class="td-desc">Generative AI large language model supporting chat, code generation, and content creation for enterprise and developer use cases via APIs and applications.</div></td><td><span class="status-pill not-approved">Not Approved</span></td><td><div class="td-note">Not approved due to external LLM risk, data security concerns, and lack of verified enterprise governance controls.</div></td></tr><tr onclick="openModal('ai_bddd87d1acd5')"><td><span class="td-vendor">6sense</span></td><td><span class="td-tool">6sense Platform</span></td><td><div class="td-desc">AI‑powered revenue intelligence and account‑based marketing platform that uses machine learning and intent data to identify in‑market accounts, predict buying stage, prioritize outreach, and recommend next‑best sales and marketing actions.</div></td><td><span class="status-pill approved">Approved</span></td><td><div class="td-note">—</div></td></tr><tr onclick="openModal('ai_7e10dea0978b')"><td><span class="td-vendor">AdMaster</span></td><td><span class="td-tool">admaster</span></td><td><div class="td-desc">AdMaster provides analytics for advertising campaigns. It uses AI to measure and optimize performance.</div></td><td><span class="status-pill not-approved">Not Approved</span></td><td><div class="td-note">Not approved because inaccurate analytics data could lead to poor business decisions.</div></td></tr><tr onclick="openModal('ai_b1f7b3b5b3ea')"><td><span class="td-vendor">Adminify</span></td><td><span class="td-tool">Adminify</span></td><td><div class="td-desc">AI platform for automating administrative workflows and operational tasks.</div></td><td><span class="status-pill not-approved">Not Approved</span></td><td><div class="td-note">Processes business data with unclear data handling and security controls.</div></td></tr><tr onclick="openModal('ai_a9e4ac0efa7a')"><td><span class="td-vendor">Adobe</span></td><td><span class="td-tool">Adobe AI</span></td><td><div class="td-desc">Adobe AI includes Adobe Firefly and partner AI models embedded in Adobe Creative Cloud (e.g., generative features in Photoshop). Covered by existing enterprise licensing; enablement is a governance/admin decision with no net‑new cost.</div></td><td><span class="status-pill approved">Approved</span></td><td><div class="td-note">—</div></td></tr><tr onclick="openModal('ai_feef0d68b94e')"><td><span class="td-vendor">Adobe</span></td><td><span class="td-tool">Workfront AI Assistant</span></td><td><div class="td-desc">An AI‑powered feature inside Adobe Workfront (Adobe’s enterprise work management and project management platform). Its purpose is to help users understand, summarize, and interact with Workfront data more easily using natural language.</div></td><td><span class="status-pill approved">Approved</span></td><td><div class="td-note">—</div></td></tr><tr onclick="openModal('ai_1756e73de504')"><td><span class="td-vendor">Alibaba Cloud</span></td><td><span class="td-tool">Qwen (Large Language Model)</span></td><td><div class="td-desc">Generative AI large language model supporting chat, coding, and content generation, accessible via APIs and interfaces for building AI applications and automation workflows.</div></td><td><span class="status-pill not-approved">Not Approved</span></td><td><div class="td-note">Not approved due to data security, data residency, and regulatory concerns.</div></td></tr><tr onclick="openModal('ai_aba30d8b18c6')"><td><span class="td-vendor">Amazon</span></td><td><span class="td-tool">Amazon Q</span></td><td><div class="td-desc">A generative AI assistant designed for business workflows, enabling secure question answering, report summarization, and task automation across enterprise systems.</div></td><td><span class="status-pill approved">Approved</span></td><td><div class="td-note">—</div></td></tr><tr onclick="openModal('ai_427abfc366dd')"><td><span class="td-vendor">Amazon</span></td><td><span class="td-tool">Kiro</span></td><td><div class="td-desc">An agentic, spec‑driven AI IDE/CLI for developers and DevOps that generates and updates code under supervised controls, integrates security hooks, and operates within AWS’s enterprise security and compliance framework.</div></td><td><span class="status-pill approved">Approved</span></td><td><div class="td-note">—</div></td></tr><tr onclick="openModal('ai_11afb67307f0')"><td><span class="td-vendor">Amazon Web Services (AWS)</span></td><td><span class="td-tool">AWS DevOps Agent</span></td><td><div class="td-desc">Autonomous AI operations agent that investigates and triages incidents, analyzes telemetry, code, and deployments, and provides root‑cause analysis and recommendations to improve application reliability across AWS and multi‑cloud environments.</div></td><td><span class="status-pill approved">Approved</span></td><td><div class="td-note">—</div></td></tr><tr onclick="openModal('ai_52b6603fe4ec')"><td><span class="td-vendor">Anthropic</span></td><td><span class="td-tool">Claude (Browser Chat)</span></td><td><div class="td-desc">Browser‑based Claude chat interface for general AI assistance, including writing, summarization, and question answering, without direct system or application integration.</div></td><td><span class="status-pill approved">Approved</span></td><td><div class="td-note">Individual purchase; permitted for limited use, do not enter any Pariveda or confidential information.</div></td></tr><tr onclick="openModal('ai_a0265f07cf3c')"><td><span class="td-vendor">Anthropic</span></td><td><span class="td-tool">Claude (Dev APIs)</span></td><td><div class="td-desc">Claude models used for AI solution development, automation, and integration through managed APIs to support enterprise use cases.</div></td><td><span class="status-pill approved">Approved</span></td><td><div class="td-note">For API use only via GASI (and Databricks where applicable) for approved business use case development</div></td></tr><tr onclick="openModal('ai_6aa7f77e1b46')"><td><span class="td-vendor">Anthropic</span></td><td><span class="td-tool">Claude Code</span></td><td><div class="td-desc">AI coding assistant built on Claude models, designed for secure, context-aware code generation and debugging. Permitted for limited use, do not enter any Pariveda or confidential information.</div></td><td><span class="status-pill approved">Approved</span></td><td><div class="td-note">Approved for development teams and engineering workflows only</div></td></tr><tr onclick="openModal('ai_81e2b012fe5a')"><td><span class="td-vendor">Anthropic</span></td><td><span class="td-tool">Claude CoWork</span></td><td><div class="td-desc">Collaborative AI workspace for writing, analysis, and task assistance using Claude models. SaaS-based end‑user tool that processes user‑provided content and operates outside Pariveda‑managed AI control boundaries.</div></td><td><span class="status-pill under-review">Under Review</span></td><td><div class="td-note">—</div></td></tr><tr onclick="openModal('ai_42154bc975ab')"><td><span class="td-vendor">AnyGen</span></td><td><span class="td-tool">AnyGen</span></td><td><div class="td-desc">Generative AI platform for content, code, and workflow automation across multiple use cases using LLMs.</div></td><td><span class="status-pill not-approved">Not Approved</span></td><td><div class="td-note">Not approved due to external AI usage, uncontrolled data processing, and insufficient governance controls.</div></td></tr><tr onclick="openModal('ai_3b3d8b47bd48')"><td><span class="td-vendor">Anysphere</span></td><td><span class="td-tool">Cursor</span></td><td><div class="td-desc">An AI-powered coding assistant that helps developers write, debug, and refactor code efficiently.</div></td><td><span class="status-pill not-approved">Not Approved</span></td><td><div class="td-note">Claude Code is an enterprise‑approved, supported tool that already fulfills this use case.</div></td></tr><tr onclick="openModal('ai_a875a33f32b4')"><td><span class="td-vendor">AnythingLLM</span></td><td><span class="td-tool">AnythingLLM</span></td><td><div class="td-desc">Private LLM platform for running and managing local or hosted AI assistants with document ingestion and chatbot capabilities.</div></td><td><span class="status-pill not-approved">Not Approved</span></td><td><div class="td-note">Not approved due to data ingestion risks, model governance concerns, and lack of enterprise validation.</div></td></tr><tr onclick="openModal('ai_11093c2c1198')"><td><span class="td-vendor">Appier</span></td><td><span class="td-tool">appier</span></td><td><div class="td-desc">Appier offers AI-driven marketing automation. It helps businesses predict and influence customer behavior. User behavior tracking may raise privacy concerns.</div></td><td><span class="status-pill not-approved">Not Approved</span></td><td><div class="td-note">Not approved due to privacy concerns from tracking and predicting user behavior.</div></td></tr><tr onclick="openModal('ai_c6dc3895b72d')"><td><span class="td-vendor">Arize AI</span></td><td><span class="td-tool">Arize</span></td><td><div class="td-desc">AI observability platform for monitoring, troubleshooting, and improving ML model performance in production.</div></td><td><span class="status-pill approved">Approved</span></td><td><div class="td-note">—</div></td></tr><tr onclick="openModal('ai_634559cbed4d')"><td><span class="td-vendor">Artsai</span></td><td><span class="td-tool">artsai</span></td><td><div class="td-desc">Artsai uses AI to optimize advertising performance. It personalizes ad delivery and targeting.</div></td><td><span class="status-pill not-approved">Not Approved</span></td><td><div class="td-note">Not approved because automated ad optimization can be exploited for fraudulent impressions.</div></td></tr><tr onclick="openModal('ai_a912056eedd9')"><td><span class="td-vendor">Asana</span></td><td><span class="td-tool">Asana AI</span></td><td><div class="td-desc">An integrated productivity assistant that automates tasks, generates status updates, and optimizes workflows, helping teams save time and focus on strategic work through smart insights and no-code automation.</div></td><td><span class="status-pill approved">Approved</span></td><td><div class="td-note">—</div></td></tr><tr onclick="openModal('ai_af7774fd60fa')"><td><span class="td-vendor">Atlassian</span></td><td><span class="td-tool">Atlassian + MCP Server</span></td><td><div class="td-desc">Provides an MCP interface to access Atlassian data (e.g., Jira, Confluence) for AI or automation use cases, enabling controlled retrieval of project, issue, and documentation context for analysis and workflows.</div></td><td><span class="status-pill approved">Approved</span></td><td><div class="td-note">—</div></td></tr><tr onclick="openModal('ai_0117b7a9f0b2')"><td><span class="td-vendor">AuditBoard</span></td><td><span class="td-tool">AuditBoard</span></td><td><div class="td-desc">Audit/compliance automation</div></td><td><span class="status-pill approved">Approved</span></td><td><div class="td-note">Approved based on Business case/Project based</div></td></tr><tr onclick="openModal('ai_201ace0a6ad3')"><td><span class="td-vendor">Augment</span></td><td><span class="td-tool">Augment Code</span></td><td><div class="td-desc">AI coding assistant that helps generate, review, and optimize code across development workflows.</div></td><td><span class="status-pill not-approved">Not Approved</span></td><td><div class="td-note">Code generation may expose sensitive data and create unreviewed or insecure code.</div></td></tr><tr onclick="openModal('ai_e870d077276c')"><td><span class="td-vendor">BallparkHQ</span></td><td><span class="td-tool">Ballpark AI Research Platform</span></td><td><div class="td-desc">AI‑powered user research platform that enables surveys, interviews, and usability testing, using AI to automate study creation, conduct adaptive interviews, and generate insights, summaries, and reports from user feedback across multiple channels.</div></td><td><span class="status-pill approved">Approved</span></td><td><div class="td-note">—</div></td></tr><tr onclick="openModal('ai_1d151f2da53f')"><td><span class="td-vendor">BeyondWords</span></td><td><span class="td-tool">beyondwords</span></td><td><div class="td-desc">BeyondWords converts text to realistic voice using AI. It enables audio publishing and narration.</div></td><td><span class="status-pill not-approved">Not Approved</span></td><td><div class="td-note">Not approved since voice cloning capabilities may enable impersonation risks.</div></td></tr><tr onclick="openModal('ai_4552344f0ce2')"><td><span class="td-vendor">Canva</span></td><td><span class="td-tool">Canva AI</span></td><td><div class="td-desc">A creative assistant that combines design, writing, and image generation tools to help users create professional visuals and content with ease—no design skills required.</div></td><td><span class="status-pill approved">Approved</span></td><td><div class="td-note">—</div></td></tr><tr onclick="openModal('ai_b7271a674862')"><td><span class="td-vendor">ChatbotAI</span></td><td><span class="td-tool">ChatbotAI</span></td><td><div class="td-desc">Conversational AI platform for building chatbots and automating customer interactions.</div></td><td><span class="status-pill not-approved">Not Approved</span></td><td><div class="td-note">External AI platform may expose customer and internal data without governance controls.</div></td></tr><tr onclick="openModal('ai_6d7a97477826')"><td><span class="td-vendor">ChurnZero</span></td><td><span class="td-tool">churnzero</span></td><td><div class="td-desc">ChurnZero helps manage customer relationships and reduce churn. It provides actionable insights.</div></td><td><span class="status-pill not-approved">Not Approved</span></td><td><div class="td-note">Not approved because handling sensitive customer data introduces security vulnerabilities.</div></td></tr><tr onclick="openModal('ai_4cd1c1035bb0')"><td><span class="td-vendor">CircleBack</span></td><td><span class="td-tool">circleback</span></td><td><div class="td-desc">CircleBack updates and organizes contact information automatically. It streamlines contact management.</div></td><td><span class="status-pill not-approved">Not Approved</span></td><td><div class="td-note">Not approved as managing personal contact details poses significant privacy risks.</div></td></tr><tr onclick="openModal('ai_d12f2ad45755')"><td><span class="td-vendor">Clawbot</span></td><td><span class="td-tool">Clawbot</span></td><td><div class="td-desc">AI agent framework enabling deployment of autonomous assistants and workflow automation across applications and systems.</div></td><td><span class="status-pill not-approved">Not Approved</span></td><td><div class="td-note">Not approved due to agent autonomy risk, system access concerns, and lack of enterprise security controls.</div></td></tr><tr onclick="openModal('ai_5e2ef3b2d362')"><td><span class="td-vendor">CodeAnt AI, Inc.</span></td><td><span class="td-tool">Code Ant AI</span></td><td><div class="td-desc">AI‑assisted code review, security scanning, and code quality analysis tool used within developer workflows (IDE, PR, CI/CD) to identify issues, vulnerabilities, and quality risks.</div></td><td><span class="status-pill approved">Approved</span></td><td><div class="td-note">Approved for POC evaluation only. Non-sensitive, non-customer data. Full governance review required before production.</div></td></tr><tr onclick="openModal('ai_febfd08fb3d6')"><td><span class="td-vendor">Codeium</span></td><td><span class="td-tool">codeium</span></td><td><div class="td-desc">AI coding assistant. Rejected due to lack of SOC 2 compliance; may be reconsidered after vendor certification.</div></td><td><span class="status-pill not-approved">Not Approved</span></td><td><div class="td-note">Not approved due to dependency risks that could introduce security vulnerabilities. And we already have enough coding assistant tools</div></td></tr><tr onclick="openModal('ai_ecf8979507b0')"><td><span class="td-vendor">Codium</span></td><td><span class="td-tool">Codium AI</span></td><td><div class="td-desc">AI coding assistant that generates, reviews, and tests code, providing automated suggestions and development support across software engineering workflows.</div></td><td><span class="status-pill not-approved">Not Approved</span></td><td><div class="td-note">Not approved due to code integrity risk, data exposure, and insufficient governance validation.</div></td></tr><tr onclick="openModal('ai_89574d62461b')"><td><span class="td-vendor">Databricks</span></td><td><span class="td-tool">Databricks Assistant</span></td><td><div class="td-desc">Analytics platform</div></td><td><span class="status-pill approved">Approved</span></td><td><div class="td-note">Approved based on Business case/Project based</div></td></tr><tr onclick="openModal('ai_2f6f2f0ff278')"><td><span class="td-vendor">dbt Labs</span></td><td><span class="td-tool">dbt + MCP Server</span></td><td><div class="td-desc">Provides an MCP interface to dbt project metadata, enabling AI or automation tools to access model, lineage, and transformation context for analytics, governance, and data operations support.</div></td><td><span class="status-pill under-review">Under Review</span></td><td><div class="td-note">—</div></td></tr><tr onclick="openModal('ai_4e49da083872')"><td><span class="td-vendor">DeeperDive</span></td><td><span class="td-tool">DeeperDive</span></td><td><div class="td-desc">DeeperDive AI delivers analytics and insights using machine learning. It helps businesses make data-driven decisions.</div></td><td><span class="status-pill not-approved">Not Approved</span></td><td><div class="td-note">Not approved because its model can be easily jailbroken, leading to data misinterpretation and security issues.</div></td></tr><tr onclick="openModal('ai_bdc6edec0945')"><td><span class="td-vendor">DeepL</span></td><td><span class="td-tool">DeepL</span></td><td><div class="td-desc">DeepL provides high-quality AI translations. It supports multiple languages with natural phrasing.</div></td><td><span class="status-pill not-approved">Not Approved</span></td><td><div class="td-note">Not approved because it may transmit sensitive text to external servers, creating potential data privacy and confidentiality risks.</div></td></tr><tr onclick="openModal('ai_6872ec3e61c6')"><td><span class="td-vendor">Docmost</span></td><td><span class="td-tool">Docmost Wiki</span></td><td><div class="td-desc">Open‑source, enterprise‑ready wiki and documentation platform for creating, organizing, and collaborating on internal knowledge; supports self‑hosting, access controls, and optional AI‑assisted features.</div></td><td><span class="status-pill approved">Approved</span></td><td><div class="td-note">Approved for POC evaluation only. Non-sensitive, non-customer data. Full governance review required before production.</div></td></tr><tr onclick="openModal('ai_11e217721f8c')"><td><span class="td-vendor">Dynatrace</span></td><td><span class="td-tool">Dynatrace + MCP</span></td><td><div class="td-desc">Dynatrace platform with MCP agentic monitoring capabilities. Provides automated detection, observability insights, and AI-driven monitoring as the enterprise standard.</div></td><td><span class="status-pill approved">Approved</span></td><td><div class="td-note">—</div></td></tr><tr onclick="openModal('ai_8a1e8ef8e09d')"><td><span class="td-vendor">ElevenLabs</span></td><td><span class="td-tool">ElevenLabs</span></td><td><div class="td-desc">ElevenLabs creates realistic voice synthesis using AI. It supports multilingual and emotional speech.</div></td><td><span class="status-pill under-review">Under Review</span></td><td><div class="td-note">—</div></td></tr><tr onclick="openModal('ai_1857e5dae8e5')"><td><span class="td-vendor">Embrace</span></td><td><span class="td-tool">Embrace Observability Platform</span></td><td><div class="td-desc">User‑focused observability platform for mobile and web applications. Captures session‑level performance, crashes, and user experience signals using OpenTelemetry, with analytics and AI‑assisted insights for troubleshooting and reliability.</div></td><td><span class="status-pill under-review">Under Review</span></td><td><div class="td-note">—</div></td></tr><tr onclick="openModal('ai_1f1cff73b00f')"><td><span class="td-vendor">Exterro</span></td><td><span class="td-tool">Exterro Assist</span></td><td><div class="td-desc">A generative AI tool that automates legal, privacy, and cybersecurity workflows, enabling natural language search and insights to improve efficiency and reduce manual effort.</div></td><td><span class="status-pill approved">Approved</span></td><td><div class="td-note">—</div></td></tr><tr onclick="openModal('ai_79e4f981c328')"><td><span class="td-vendor">Fabrix.ai (formerly CloudFabrix)</span></td><td><span class="td-tool">Fabrix.ai</span></td><td><div class="td-desc">Enterprise agentic AI platform for IT, network, and security operations. Uses LLM-powered agents for event correlation, root-cause analysis, observability, and automated remediation with governance controls.</div></td><td><span class="status-pill approved">Approved</span></td><td><div class="td-note">—</div></td></tr><tr onclick="openModal('ai_e2efd4303129')"><td><span class="td-vendor">Figma</span></td><td><span class="td-tool">Figma Developer + MCP</span></td><td><div class="td-desc">AI‑enabled Figma Developer features with Model Context Protocol (MCP) integration. Supports code-ready design workflows and automated component generation. POC completed; now full implementation.</div></td><td><span class="status-pill approved">Approved</span></td><td><div class="td-note">—</div></td></tr><tr onclick="openModal('ai_babab6a3b162')"><td><span class="td-vendor">Figma</span></td><td><span class="td-tool">Figma Make</span></td><td><div class="td-desc">Figma Make is an AI-powered feature in Figma that quickly generates design drafts and prototypes from text prompts to accelerate the creative process.</div></td><td><span class="status-pill under-review">Under Review</span></td><td><div class="td-note">—</div></td></tr><tr onclick="openModal('ai_fd1399c6f4aa')"><td><span class="td-vendor">Fireflies</span></td><td><span class="td-tool">Fireflies ai</span></td><td><div class="td-desc">An AI-powered meeting assistant that automatically records, transcribes, summarizes, and analyzes conversations across platforms like Zoom, Google Meet, and Teams.</div></td><td><span class="status-pill not-approved">Not Approved</span></td><td><div class="td-note">Not approved because meeting transcripts may contain sensitive information that requires strict security controls.</div></td></tr><tr onclick="openModal('ai_3897f6a81c1c')"><td><span class="td-vendor">Gamma</span></td><td><span class="td-tool">Gamma</span></td><td><div class="td-desc">Builds presentations and documents using AI formatting and design suggestions.</div></td><td><span class="status-pill under-review">Under Review</span></td><td><div class="td-note">—</div></td></tr><tr onclick="openModal('ai_7beebb8ad1e7')"><td><span class="td-vendor">Genspark</span></td><td><span class="td-tool">Genspark</span></td><td><div class="td-desc">Creates autonomous agents for research, writing, and multimedia tasks.</div></td><td><span class="status-pill not-approved">Not Approved</span></td><td><div class="td-note">Not approved because autonomous agents and complex integrations can lead to unintended data exposure.</div></td></tr><tr onclick="openModal('ai_01258cb6a670')"><td><span class="td-vendor">GitHub</span></td><td><span class="td-tool">GitHub Copilot</span></td><td><div class="td-desc">AI coding assistant</div></td><td><span class="status-pill approved">Approved</span></td><td><div class="td-note">—</div></td></tr><tr onclick="openModal('ai_b2aeb4838adb')"><td><span class="td-vendor">GitLab</span></td><td><span class="td-tool">GitLab Duo</span></td><td><div class="td-desc">GitLab Duo is GitLab’s AI-powered DevSecOps assistant that helps teams plan, build, secure, review, and deploy software using code suggestions, agentic automation, and security insights across the entire development lifecycle.</div></td><td><span class="status-pill under-review">Under Review</span></td><td><div class="td-note">—</div></td></tr><tr onclick="openModal('ai_be8c98064c70')"><td><span class="td-vendor">Google</span></td><td><span class="td-tool">Antigravity</span></td><td><div class="td-desc">An agent-first development platform powered by Gemini models that automates coding, testing, and validation across editor, terminal, and browser with verifiable outputs for trust and transparency.</div></td><td><span class="status-pill approved">Approved</span></td><td><div class="td-note">—</div></td></tr><tr onclick="openModal('ai_2cb9f3c2dd01')"><td><span class="td-vendor">Google</span></td><td><span class="td-tool">Gemini (Dev API)</span></td><td><div class="td-desc">Gemini API frontier model family used by developers to build, test, and integrate generative AI capabilities into applications through enterprise‑managed environments with logging, security controls, and AI governance requirements.</div></td><td><span class="status-pill approved">Approved</span></td><td><div class="td-note">Approved API via GASI/DB for development users only</div></td></tr><tr onclick="openModal('ai_7b8fa6a95d9b')"><td><span class="td-vendor">Google</span></td><td><span class="td-tool">Gemini Browser Chat</span></td><td><div class="td-desc">Browser‑based conversational interface for the Gemini frontier model family that enables end‑users to interact with generative AI for general assistance, content drafting, and analysis outside of application or API integrations.</div></td><td><span class="status-pill approved">Approved</span></td><td><div class="td-note">Individual purchase; permitted for limited use, do not enter any Pariveda or confidential information.</div></td></tr><tr onclick="openModal('ai_89b9e239c067')"><td><span class="td-vendor">Google</span></td><td><span class="td-tool">Gemini Code Assist</span></td><td><div class="td-desc">Google's AI-powered coding tool for developers, integrated with IDEs and cloud</div></td><td><span class="status-pill approved">Approved</span></td><td><div class="td-note">Approved for POC evaluation only. Non-sensitive, non-customer data. Full governance review required before production.</div></td></tr><tr onclick="openModal('ai_31af228082d0')"><td><span class="td-vendor">Google</span></td><td><span class="td-tool">Google Agent Development Kit (ADK)</span></td><td><div class="td-desc">Open‑source, code‑first framework for building and evaluating AI agents and multi‑agent workflows. Model‑agnostic; often used with Google Gemini and Vertex AI for agent orchestration.</div></td><td><span class="status-pill approved">Approved</span></td><td><div class="td-note">—</div></td></tr><tr onclick="openModal('ai_387263dad8b5')"><td><span class="td-vendor">Google</span></td><td><span class="td-tool">Google AI Studio</span></td><td><div class="td-desc">A web-based interface for creating, testing, and deploying generative AI models using Google’s Gemini and other APIs.</div></td><td><span class="status-pill approved">Approved</span></td><td><div class="td-note">—</div></td></tr><tr onclick="openModal('ai_f57fd0887506')"><td><span class="td-vendor">Google</span></td><td><span class="td-tool">Google Veo 3</span></td><td><div class="td-desc">Google video generation model for AI solutions via Gemini Enterprise. Enables text‑to‑video generation for experimentation and internal use. Not intended for final production or brand‑approved marketing assets.</div></td><td><span class="status-pill approved">Approved</span></td><td><div class="td-note">Approved on a use case basis</div></td></tr><tr onclick="openModal('ai_589474237c43')"><td><span class="td-vendor">Google</span></td><td><span class="td-tool">Nano Banana</span></td><td><div class="td-desc">Approved Google image generation capability within Gemini Enterprise, enabling prompt‑based image creation and transformation for internal AI use cases and experimentation.</div></td><td><span class="status-pill approved">Approved</span></td><td><div class="td-note">Approved on a use case basis</div></td></tr><tr onclick="openModal('ai_afa62b4cb1da')"><td><span class="td-vendor">Google</span></td><td><span class="td-tool">NotebookLM</span></td><td><div class="td-desc">NotebookLM is an AI-powered research tool that analyzes user-uploaded documents (PDFs, Google Docs, websites, etc.) to generate summaries, answer questions, and create audio overviews. It uses Gemini models to deliver personalized insights.</div></td><td><span class="status-pill approved">Approved</span></td><td><div class="td-note">—</div></td></tr><tr onclick="openModal('ai_b1b8f845e015')"><td><span class="td-vendor">Google Cloud</span></td><td><span class="td-tool">Vertex AI</span></td><td><div class="td-desc">A managed platform for building, deploying, and scaling machine learning models and generative AI solutions.</div></td><td><span class="status-pill approved">Approved</span></td><td><div class="td-note">—</div></td></tr><tr onclick="openModal('ai_576ff7ed5980')"><td><span class="td-vendor">Grammarly</span></td><td><span class="td-tool">grammarly</span></td><td><div class="td-desc">Grammarly helps users improve grammar, spelling, and style. It enhances clarity and correctness in writing.</div></td><td><span class="status-pill under-review">Under Review</span></td><td><div class="td-note">—</div></td></tr><tr onclick="openModal('ai_cf45869fabce')"><td><span class="td-vendor">Grok</span></td><td><span class="td-tool">grok</span></td><td><div class="td-desc">Grok engages users with real-time conversational responses.</div></td><td><span class="status-pill not-approved">Not Approved</span></td><td><div class="td-note">Not approved because it could generate inaccurate or misleading responses, increasing misinformation risk.</div></td></tr><tr onclick="openModal('ai_39c00f6c8caa')"><td><span class="td-vendor">H2O.ai</span></td><td><span class="td-tool">H2O.ai</span></td><td><div class="td-desc">H2O.ai is an open-source platform for building predictive models using AutoML, deep learning, and distributed computing. It supports multiple languages and integrates with cloud and big data ecosystems.</div></td><td><span class="status-pill not-approved">Not Approved</span></td><td><div class="td-note">Not approved since improper use of explainability tools may lead to misinterpretation of model decisions.</div></td></tr><tr onclick="openModal('ai_6dddd0046d6c')"><td><span class="td-vendor">Hangzhou DeepSeek AI Basic Technology</span></td><td><span class="td-tool">DeepSeek</span></td><td><div class="td-desc">Banned on 1/28 at company level</div></td><td><span class="status-pill not-approved">Not Approved</span></td><td><div class="td-note">Banned on 1/28 at company level</div></td></tr><tr onclick="openModal('ai_46de55350ab3')"><td><span class="td-vendor">Harvey</span></td><td><span class="td-tool">Harvey AI</span></td><td><div class="td-desc">Harvey AI is a domain‑specific legal AI platform that helps law firms and in‑house teams draft, analyze, and review legal documents with greater speed, accuracy, and security.</div></td><td><span class="status-pill approved">Approved</span></td><td><div class="td-note">—</div></td></tr><tr onclick="openModal('ai_87c780ed9e27')"><td><span class="td-vendor">HeyGen</span></td><td><span class="td-tool">heygen</span></td><td><div class="td-desc">HeyGen creates AI-generated videos from text input. It simplifies video production for communication.</div></td><td><span class="status-pill not-approved">Not Approved</span></td><td><div class="td-note">Not approved because generated videos can enable deepfake impersonation risks.</div></td></tr><tr onclick="openModal('ai_59a3d965ae09')"><td><span class="td-vendor">Hugging Face</span></td><td><span class="td-tool">Hugging Face</span></td><td><div class="td-desc">AI platform hosting models, datasets, and tools for building and deploying machine learning and generative AI applications across multiple domains.</div></td><td><span class="status-pill not-approved">Not Approved</span></td><td><div class="td-note">Not approved due to open model ecosystem risks, data handling concerns, and lack of centralized governance control.</div></td></tr><tr onclick="openModal('ai_74e1cf5d5b79')"><td><span class="td-vendor">IBM</span></td><td><span class="td-tool">Watsonx</span></td><td><div class="td-desc">Watsonx is an enterprise-grade AI platform offering tools for building, training, and deploying AI models. It supports generative AI, MLOps, RAG frameworks, and integrates with hybrid cloud environments.</div></td><td><span class="status-pill not-approved">Not Approved</span></td><td><div class="td-note">Not approved because complex AI lifecycle management requires robust governance to prevent misuse.</div></td></tr><tr onclick="openModal('ai_b37cdbbf8871')"><td><span class="td-vendor">InPowered</span></td><td><span class="td-tool">inpwrd</span></td><td><div class="td-desc">InPowered uses AI to promote content through advertising. It helps brands reach targeted audiences.</div></td><td><span class="status-pill not-approved">Not Approved</span></td><td><div class="td-note">Not approved due to lack of transparency in labeling sponsored content and unclear security posture.</div></td></tr><tr onclick="openModal('ai_1a775b206f74')"><td><span class="td-vendor">Kittl</span></td><td><span class="td-tool">kittl</span></td><td><div class="td-desc">Kittl provides AI tools for graphic design. It simplifies creation of logos, posters, and more.</div></td><td><span class="status-pill not-approved">Not Approved</span></td><td><div class="td-note">Not approved because generated designs may unintentionally infringe on copyrighted works.</div></td></tr><tr onclick="openModal('ai_72fed1208d5d')"><td><span class="td-vendor">Knolli</span></td><td><span class="td-tool">Knolli AI</span></td><td><div class="td-desc">AI knowledge platform that organizes and surfaces enterprise information using generative AI and conversational interfaces.</div></td><td><span class="status-pill not-approved">Not Approved</span></td><td><div class="td-note">Not approved due to data exposure risks and unclear governance of knowledge ingestion and access.</div></td></tr><tr onclick="openModal('ai_lansweeper01')"><td><span class="td-vendor">Lansweeper</span></td><td><span class="td-tool">Lansweeper Cyber Asset Intelligence</span></td><td><div class="td-desc">Cyber asset intelligence platform that uses machine learning and AI‑assisted analytics to continuously discover, normalize, and enrich IT, OT, IoT, and cloud assets, with AI chat and integrations for natural‑language querying and insights.</div></td><td><span class="status-pill approved">Approved</span></td><td><div class="td-note">—</div></td></tr><tr onclick="openModal('ai_c56822c662cf')"><td><span class="td-vendor">LaunchDarkly</span></td><td><span class="td-tool">LaunchDarkly Feature Management Platform</span></td><td><div class="td-desc">Feature management and experimentation platform used to control software releases and AI behavior in production. Enables feature flags, targeting, and safe rollout or rollback of features, prompts, and configurations without redeploying code.</div></td><td><span class="status-pill under-review">Under Review</span></td><td><div class="td-note">—</div></td></tr><tr onclick="openModal('ai_d92daffa6356')"><td><span class="td-vendor">Lindy</span></td><td><span class="td-tool">Lindy AI</span></td><td><div class="td-desc">AI assistant platform that automates workflows such as scheduling, email handling, and task coordination using agent-based automation.</div></td><td><span class="status-pill not-approved">Not Approved</span></td><td><div class="td-note">Not approved due to system access risks (email/calendar), automation autonomy, and data privacy concerns.</div></td></tr><tr onclick="openModal('ai_d75af89f0e4f')"><td><span class="td-vendor">Loom</span></td><td><span class="td-tool">loom</span></td><td><div class="td-desc">Loom allows users to record and share video messages.</div></td><td><span class="status-pill not-approved">Not Approved</span></td><td><div class="td-note">Not approved as videos can be shared without consent, creating privacy concerns.</div></td></tr><tr onclick="openModal('ai_c189ed06875e')"><td><span class="td-vendor">Lovart</span></td><td><span class="td-tool">Lovart AI</span></td><td><div class="td-desc">Generative AI platform for content creation and creative workflows.</div></td><td><span class="status-pill not-approved">Not Approved</span></td><td><div class="td-note">Unapproved generative AI tool with no validated controls for enterprise use.</div></td></tr><tr onclick="openModal('ai_c3a080a3ff47')"><td><span class="td-vendor">Lucid Software</span></td><td><span class="td-tool">Lucidchart AI (Lucid AI)</span></td><td><div class="td-desc">Generative AI features embedded in Lucidchart that create, edit, and summarize diagrams from natural‑language prompts to support visual documentation, process modeling, and collaborative design.</div></td><td><span class="status-pill approved">Approved</span></td><td><div class="td-note">—</div></td></tr><tr onclick="openModal('ai_ce3ba579464e')"><td><span class="td-vendor">Lucid Software</span></td><td><span class="td-tool">Lucidspark AI</span></td><td><div class="td-desc">AI‑assisted brainstorming and collaboration tool that generates ideas, groups and organizes concepts, builds mind maps, and summarizes workshops to support ideation and team planning.</div></td><td><span class="status-pill approved">Approved</span></td><td><div class="td-note">—</div></td></tr><tr onclick="openModal('ai_7df51571331c')"><td><span class="td-vendor">Manus</span></td><td><span class="td-tool">Manus AI</span></td><td><div class="td-desc">AI agent platform designed for automation, workflow execution, and general task orchestration using generative AI models.</div></td><td><span class="status-pill not-approved">Not Approved</span></td><td><div class="td-note">Not approved due to agent autonomy risks and unclear enterprise security and governance controls.</div></td></tr><tr onclick="openModal('ai_f2329cc59771')"><td><span class="td-vendor">Marblism</span></td><td><span class="td-tool">Marblism AI</span></td><td><div class="td-desc">AI development platform that generates full-stack applications and backend workflows from prompts using generative AI models.</div></td><td><span class="status-pill not-approved">Not Approved</span></td><td><div class="td-note">Not approved due to code generation risks, external model dependencies, and lack of governance validation.</div></td></tr><tr onclick="openModal('ai_b13344bb4216')"><td><span class="td-vendor">Meta</span></td><td><span class="td-tool">Llama (Dev API)</span></td><td><div class="td-desc">Llama frontier model family accessed via enterprise‑managed platforms (GASI and Databricks) to build, test, and integrate generative AI capabilities into applications with logging, security controls, and AI governance requirements</div></td><td><span class="status-pill approved">Approved</span></td><td><div class="td-note">Approved API via GASI/DB for development users only</div></td></tr><tr onclick="openModal('ai_a5af9b6be8e4')"><td><span class="td-vendor">Meta</span></td><td><span class="td-tool">Meta AI (Browser Chat)</span></td><td><div class="td-desc">Browser‑based conversational interface powered by the Llama frontier model family that enables end‑users to interact with generative AI for general assistance, content drafting, and analysis outside of application or API integrations.</div></td><td><span class="status-pill under-review">Under Review</span></td><td><div class="td-note">—</div></td></tr><tr onclick="openModal('ai_b5871ae0837e')"><td><span class="td-vendor">Microsoft</span></td><td><span class="td-tool">Azure DevOps + MCP</span></td><td><div class="td-desc">Integration that enables AI agents to securely access Azure DevOps data (work items, repos, pull requests, pipelines, tests) via the Model Context Protocol, allowing AI‑assisted analysis and actions within developer workflows. [learn.microsoft.com]</div></td><td><span class="status-pill approved">Approved</span></td><td><div class="td-note">—</div></td></tr><tr onclick="openModal('ai_554d97ede293')"><td><span class="td-vendor">Microsoft</span></td><td><span class="td-tool">Copilot for Power BI</span></td><td><div class="td-desc">GenAI insights</div></td><td><span class="status-pill approved">Approved</span></td><td><div class="td-note">—</div></td></tr><tr onclick="openModal('ai_897b151b0e24')"><td><span class="td-vendor">Microsoft</span></td><td><span class="td-tool">Copilot Studio</span></td><td><div class="td-desc">A low-code platform to create, customize, and manage AI copilots and conversational bots integrated with Microsoft services.</div></td><td><span class="status-pill approved">Approved</span></td><td><div class="td-note">—</div></td></tr><tr onclick="openModal('ai_7f5414d871cc')"><td><span class="td-vendor">Microsoft</span></td><td><span class="td-tool">CoPilot4DevOps</span></td><td><div class="td-desc">AI assistant for DevOps workflows providing code suggestions, pipeline support, and repo insights. Approved for enterprise use with standard data‑handling controls and auditing.</div></td><td><span class="status-pill approved">Approved</span></td><td><div class="td-note">Approved for POC evaluation only. Non-sensitive, non-customer data. Full governance review required before production.</div></td></tr><tr onclick="openModal('ai_0a07b6a061c7')"><td><span class="td-vendor">Microsoft</span></td><td><span class="td-tool">Microsoft 365 Copilot</span></td><td><div class="td-desc">AI-powered productivity tool</div></td><td><span class="status-pill approved">Approved</span></td><td><div class="td-note">—</div></td></tr><tr onclick="openModal('ai_c6c701499322')"><td><span class="td-vendor">Microsoft</span></td><td><span class="td-tool">Microsoft Azure OpenAI</span></td><td><div class="td-desc">LLM within Azure with business case/ project based request.</div></td><td><span class="status-pill approved">Approved</span></td><td><div class="td-note">—</div></td></tr><tr onclick="openModal('ai_1e7dd381b555')"><td><span class="td-vendor">Midjourney</span></td><td><span class="td-tool">midjourney</span></td><td><div class="td-desc">A generative AI tool that creates high-quality images from text prompts, widely used by designers, artists, and marketers for visual storytelling.</div></td><td><span class="status-pill not-approved">Not Approved</span></td><td><div class="td-note">Not approved because generated images may replicate copyrighted material and lacks enterprise-grade security.</div></td></tr><tr onclick="openModal('ai_e2ae194e1573')"><td><span class="td-vendor">MindStudio</span></td><td><span class="td-tool">MindStudio AI</span></td><td><div class="td-desc">AI workflow platform that enables building and deploying AI assistants and automations across business processes without coding.</div></td><td><span class="status-pill not-approved">Not Approved</span></td><td><div class="td-note">Not approved due to agentic automation risks, external integrations, and lack of enterprise governance validation.</div></td></tr><tr onclick="openModal('ai_5589c61d3ea8')"><td><span class="td-vendor">MiniMax</span></td><td><span class="td-tool">MiniMax AI</span></td><td><div class="td-desc">Generative AI platform providing large language and multimodal models for chat, content creation, and AI application development.</div></td><td><span class="status-pill not-approved">Not Approved</span></td><td><div class="td-note">Not approved due to data privacy concerns, external hosting risks, and lack of enterprise compliance validation.</div></td></tr><tr onclick="openModal('ai_629ffd0d1d56')"><td><span class="td-vendor">Mixpanel</span></td><td><span class="td-tool">Mixpanel + MCP</span></td><td><div class="td-desc">Product analytics platform integrated via Model Context Protocol (MCP) to enable AI‑assisted querying, reporting, and event analysis. Allows AI tools to interact with Mixpanel data for insights and analytics workflows.</div></td><td><span class="status-pill approved">Approved</span></td><td><div class="td-note">—</div></td></tr><tr onclick="openModal('ai_ced8acc35252')"><td><span class="td-vendor">Moltbook</span></td><td><span class="td-tool">Moltbook</span></td><td><div class="td-desc">AI-powered platform for content generation and workflow automation using generative AI models.</div></td><td><span class="status-pill not-approved">Not Approved</span></td><td><div class="td-note">Not approved due to unclear governance, external AI usage, and data protection concerns.</div></td></tr><tr onclick="openModal('ai_7f24ca22c771')"><td><span class="td-vendor">Moltx</span></td><td><span class="td-tool">Moltx</span></td><td><div class="td-desc">AI platform supporting automation, content generation, and integration-based workflows using generative AI capabilities.</div></td><td><span class="status-pill not-approved">Not Approved</span></td><td><div class="td-note">Not approved due to insufficient transparency on AI controls and enterprise security posture.</div></td></tr><tr onclick="openModal('ai_52bd668cf1a5')"><td><span class="td-vendor">Moonshot AI</span></td><td><span class="td-tool">Kimi</span></td><td><div class="td-desc">Browser‑based conversational AI assistant designed for long‑context reasoning, document analysis, and general generative AI tasks including content creation and data summarization.</div></td><td><span class="status-pill not-approved">Not Approved</span></td><td><div class="td-note">Not approved due to data governance, privacy, and security risks.</div></td></tr><tr onclick="openModal('ai_76b25227535f')"><td><span class="td-vendor">Motion AI</span></td><td><span class="td-tool">Motion AI</span></td><td><div class="td-desc">Motion AI automates task scheduling, meeting notes, and project management. It integrates with calendars and communication tools to optimize team productivity.</div></td><td><span class="status-pill not-approved">Not Approved</span></td><td><div class="td-note">Not approved since automation errors could lead to missed deadlines or miscommunication.</div></td></tr><tr onclick="openModal('ai_1f1bc8e3cdfc')"><td><span class="td-vendor">Moveworks</span></td><td><span class="td-tool">Moveworks AI</span></td><td><div class="td-desc">Enterprise AI assistant platform for automating IT support and employee service workflows using conversational AI and integrations.</div></td><td><span class="status-pill approved">Approved</span></td><td><div class="td-note">—</div></td></tr><tr onclick="openModal('ai_20c4ebbb40aa')"><td><span class="td-vendor">MyClaw.ai</span></td><td><span class="td-tool">MyClaw AI Agent Platform</span></td><td><div class="td-desc">AI agent platform for automating workflows and executing tasks across apps and APIs.</div></td><td><span class="status-pill not-approved">Not Approved</span></td><td><div class="td-note">Autonomous agents can access systems and execute actions without sufficient safeguards.</div></td></tr><tr onclick="openModal('ai_db709cc74215')"><td><span class="td-vendor">NanoBot</span></td><td><span class="td-tool">NanoBot</span></td><td><div class="td-desc">AI agent framework for deploying small, modular automation bots capable of handling workflows and task execution across systems.</div></td><td><span class="status-pill not-approved">Not Approved</span></td><td><div class="td-note">Not approved due to autonomous behavior risks and insufficient visibility into governance and data protection controls.</div></td></tr><tr onclick="openModal('ai_b2c51263d51f')"><td><span class="td-vendor">NanoBot</span></td><td><span class="td-tool">NanoBot AI</span></td><td><div class="td-desc">AI automation platform enabling deployment of intelligent agents for task execution, integrations, and workflow orchestration.</div></td><td><span class="status-pill not-approved">Not Approved</span></td><td><div class="td-note">Not approved due to agent autonomy, system access, and lack of validated governance/security posture.</div></td></tr><tr onclick="openModal('ai_c0f263b51130')"><td><span class="td-vendor">NanoClaw</span></td><td><span class="td-tool">NanoClaw</span></td><td><div class="td-desc">AI agent and automation platform designed to run lightweight autonomous agents for task execution, integrations, and workflow automation.</div></td><td><span class="status-pill not-approved">Not Approved</span></td><td><div class="td-note">Not approved due to agentic execution risk, unclear security controls, and lack of enterprise readiness.</div></td></tr><tr onclick="openModal('ai_460c985f4876')"><td><span class="td-vendor">NICE</span></td><td><span class="td-tool">NICE CXOne</span></td><td><div class="td-desc">Customer summaries</div></td><td><span class="status-pill approved">Approved</span></td><td><div class="td-note">—</div></td></tr><tr onclick="openModal('ai_9a50bafee993')"><td><span class="td-vendor">Notion</span></td><td><span class="td-tool">Notion AI</span></td><td><div class="td-desc">Enhances notes and docs with AI writing, summarization, and task management.</div></td><td><span class="status-pill not-approved">Not Approved</span></td><td><div class="td-note">Not approved as AI-generated content may inadvertently expose sensitive internal information.</div></td></tr><tr onclick="openModal('ai_985883e0b26e')"><td><span class="td-vendor">NullClaw</span></td><td><span class="td-tool">NullClaw</span></td><td><div class="td-desc">AI agent framework enabling deployment of automation agents and workflow execution across systems.</div></td><td><span class="status-pill not-approved">Not Approved</span></td><td><div class="td-note">Not approved due to agent autonomy, integration risk, and lack of enterprise-grade governance.</div></td></tr><tr onclick="openModal('ai_5ad64c57717b')"><td><span class="td-vendor">Obot</span></td><td><span class="td-tool">Obot AI</span></td><td><div class="td-desc">AI agent platform focused on automating workflows and enabling conversational automation across business applications.</div></td><td><span class="status-pill not-approved">Not Approved</span></td><td><div class="td-note">Not approved due to unclear enterprise controls, external integrations, and potential data exposure risks.</div></td></tr><tr onclick="openModal('ai_98d98a852f35')"><td><span class="td-vendor">OpenAI</span></td><td><span class="td-tool">GPT Model (Dev API)</span></td><td><div class="td-desc">GPT frontier model family accessed via enterprise‑managed platforms (GASI and Databricks) to build, test, and integrate generative AI capabilities into applications with logging, security controls, and AI governance requirements.</div></td><td><span class="status-pill approved">Approved</span></td><td><div class="td-note">Approved API via GASI/DB for development users only</div></td></tr><tr onclick="openModal('ai_b0414b747f63')"><td><span class="td-vendor">OpenAI</span></td><td><span class="td-tool">OpenAI ChatGPT</span></td><td><div class="td-desc">Browser‑based conversational interface for GPT frontier models that enables end‑users to interact with generative AI for general assistance, content drafting, analysis, and research outside of application or API integrations. [openai.com]</div></td><td><span class="status-pill approved">Approved</span></td><td><div class="td-note">Individual purchase; permitted for limited use, do not enter any Pariveda or confidential information.</div></td></tr><tr onclick="openModal('ai_c785ff4f52f1')"><td><span class="td-vendor">OpenAI</span></td><td><span class="td-tool">OpenAI Codex</span></td><td><div class="td-desc">AI‑powered coding agent that assists with writing, reviewing, debugging, and refactoring code, and automates software development tasks across IDEs, CLI, and desktop apps using OpenAI’s frontier coding models.</div></td><td><span class="status-pill under-review">Under Review</span></td><td><div class="td-note">—</div></td></tr><tr onclick="openModal('ai_df60dcbb880b')"><td><span class="td-vendor">OpenClaw</span></td><td><span class="td-tool">OpenClaw</span></td><td><div class="td-desc">Previously known as Moltbot and Clawdbot, OpenClaw is an open‑source, self‑hosted autonomous AI agent that runs locally, integrates with messaging apps, automates tasks, and uses persistent memory for personalized actions.</div></td><td><span class="status-pill not-approved">Not Approved</span></td><td><div class="td-note">Blocked due to high risk from broad system permissions, prompt‑injection paths, exposed instances, malicious skills, and potential data leakage—making it unsafe for enterprise environments.</div></td></tr><tr onclick="openModal('ai_4450ff6db9ab')"><td><span class="td-vendor">OpenCode</span></td><td><span class="td-tool">OpenCode AI</span></td><td><div class="td-desc">AI coding and development assistant that generates, edits, and automates software development tasks using generative models.</div></td><td><span class="status-pill not-approved">Not Approved</span></td><td><div class="td-note">Not approved due to code integrity risks, data exposure, and external model dependency concerns.</div></td></tr><tr onclick="openModal('ai_6c12be34bc32')"><td><span class="td-vendor">OpenRouter</span></td><td><span class="td-tool">openrouter</span></td><td><div class="td-desc">OpenRouter routes AI model requests across providers. It enables access to multiple AI models via one interface.</div></td><td><span class="status-pill not-approved">Not Approved</span></td><td><div class="td-note">Not approved because routing prompts in plaintext lacks privacy guarantees and enterprise certifications.</div></td></tr><tr onclick="openModal('ai_c81236a6bc2c')"><td><span class="td-vendor">Orca</span></td><td><span class="td-tool">Orca + MCP Server</span></td><td><div class="td-desc">Agent runtime and tooling using the Model Context Protocol (MCP) to enable AI agents to securely access tools, data, and services. Supports standardized agent‑to‑tool interactions with controlled context sharing and governance.</div></td><td><span class="status-pill under-review">Under Review</span></td><td><div class="td-note">—</div></td></tr><tr onclick="openModal('ai_698ee9d09716')"><td><span class="td-vendor">Orca Security</span></td><td><span class="td-tool">Orca AI</span></td><td><div class="td-desc">GenAI–powered cloud security assistant embedded in the Orca platform that analyzes cloud security telemetry to identify, prioritize, and recommend remediation for misconfigurations, vulnerabilities, identity risks, and AI‑related security exposures.</div></td><td><span class="status-pill under-review">Under Review</span></td><td><div class="td-note">—</div></td></tr><tr onclick="openModal('ai_9c4b8015140d')"><td><span class="td-vendor">Otter AI</span></td><td><span class="td-tool">Otter.ai</span></td><td><div class="td-desc">AI transcription and meeting assistant that captures and summarizes conversations.</div></td><td><span class="status-pill not-approved">Not Approved</span></td><td><div class="td-note">Records and processes conversations, creating privacy and sensitive data exposure risks.</div></td></tr><tr onclick="openModal('ai_68e337306e6b')"><td><span class="td-vendor">Perforce</span></td><td><span class="td-tool">Perfecto AI</span></td><td><div class="td-desc">Perfecto AI is an enterprise testing platform that uses AI to automate and analyze web and mobile testing on real devices and browsers, providing intelligent validation, analytics, and governance‑friendly controls for large‑scale QA.</div></td><td><span class="status-pill approved">Approved</span></td><td><div class="td-note">—</div></td></tr><tr onclick="openModal('ai_d09802080a20')"><td><span class="td-vendor">Perplexity</span></td><td><span class="td-tool">perplexity</span></td><td><div class="td-desc">Individual purchase; permitted for limited use, do not enter any Pariveda or confidential information.</div></td><td><span class="status-pill approved">Approved</span></td><td><div class="td-note">—</div></td></tr><tr onclick="openModal('ai_8cfc0b984778')"><td><span class="td-vendor">Picoclaw</span></td><td><span class="td-tool">PicoClaw</span></td><td><div class="td-desc">Lightweight AI agent platform for running automated workflows and agent-based task execution across applications.</div></td><td><span class="status-pill not-approved">Not Approved</span></td><td><div class="td-note">Not approved due to agentic automation risks and insufficient enterprise-grade controls and oversight.</div></td></tr><tr onclick="openModal('ai_1ebf9742bb85')"><td><span class="td-vendor">Pictory AI</span></td><td><span class="td-tool">Pictory AI</span></td><td><div class="td-desc">Pictory AI converts scripts, articles, and blog posts into videos using AI. It offers features like text-to-video, audio transcription, and video summarization with royalty-free assets.</div></td><td><span class="status-pill not-approved">Not Approved</span></td><td><div class="td-note">Not approved since generated videos may mislead or misrepresent information if not reviewed.</div></td></tr><tr onclick="openModal('ai_70c5a299901c')"><td><span class="td-vendor">Pixlr</span></td><td><span class="td-tool">pixlr</span></td><td><div class="td-desc">Pixlr is an AI-powered photo editor. It offers tools for quick and creative image editing.</div></td><td><span class="status-pill not-approved">Not Approved</span></td><td><div class="td-note">Not approved because edited images can distort reality and mislead viewers.</div></td></tr><tr onclick="openModal('ai_d2a482456725')"><td><span class="td-vendor">PolyAI</span></td><td><span class="td-tool">PolyAI</span></td><td><div class="td-desc">Enterprise voice AI platform for automating customer service calls using constrained, vendor‑managed conversational flows with built‑in security, compliance, and human escalation.</div></td><td><span class="status-pill approved">Approved</span></td><td><div class="td-note">—</div></td></tr><tr onclick="openModal('ai_f736b80b1e39')"><td><span class="td-vendor">Qortex</span></td><td><span class="td-tool">qortex</span></td><td><div class="td-desc">QORTEX provides AI-powered video analytics. It extracts insights from video content.</div></td><td><span class="status-pill not-approved">Not Approved</span></td><td><div class="td-note">Not approved as video analytics may infringe on privacy through constant surveillance.</div></td></tr><tr onclick="openModal('ai_392a33f7337d')"><td><span class="td-vendor">QuickAgent</span></td><td><span class="td-tool">QuickAgent</span></td><td><div class="td-desc">AI agent platform designed to create and deploy automation workflows and task-oriented assistants.</div></td><td><span class="status-pill not-approved">Not Approved</span></td><td><div class="td-note">Not approved due to autonomous execution risk and lack of enterprise security/compliance validation.</div></td></tr><tr onclick="openModal('ai_618b85934273')"><td><span class="td-vendor">QuillBot</span></td><td><span class="td-tool">quillbot</span></td><td><div class="td-desc">QuillBot assists with paraphrasing and grammar correction. It helps improve writing quality.</div></td><td><span class="status-pill not-approved">Not Approved</span></td><td><div class="td-note">Not approved because paraphrased content may inadvertently lead to plagiarism.</div></td></tr><tr onclick="openModal('ai_e52b146523c2')"><td><span class="td-vendor">Ravenna</span></td><td><span class="td-tool">Ravenna AI</span></td><td><div class="td-desc">AI platform for automation and data processing using generative AI models and workflow orchestration.</div></td><td><span class="status-pill not-approved">Not Approved</span></td><td><div class="td-note">Not approved due to insufficient transparency on AI usage, controls, and enterprise security posture.</div></td></tr><tr onclick="openModal('ai_replicant01')"><td><span class="td-vendor">Replicant</span></td><td><span class="td-tool">Replicant Conversational AI</span></td><td><div class="td-desc">Enterprise conversational AI platform that automates Tier‑1 customer service interactions across voice, chat, and SMS using natural language understanding to resolve requests, generate transcripts, and provide analytics and automated quality assurance.</div></td><td><span class="status-pill approved">Approved</span></td><td><div class="td-note">—</div></td></tr><tr onclick="openModal('ai_430c2978c912')"><td><span class="td-vendor">Rezi</span></td><td><span class="td-tool">rezi</span></td><td><div class="td-desc">Rezi helps users build optimized resumes using AI. It ensures formatting and keyword alignment.</div></td><td><span class="status-pill not-approved">Not Approved</span></td><td><div class="td-note">Not approved since AI-driven resume optimization may reinforce biases in screening algorithms.</div></td></tr><tr onclick="openModal('ai_d7fa8d37cc88')"><td><span class="td-vendor">S&amp;P Global (Platts)</span></td><td><span class="td-tool">AI‑Ready Data</span></td><td><div class="td-desc">AI‑ready datasets from S&amp;P Platts and S&amp;P Global delivered in LLM‑friendly formats, designed to support retrieval‑augmented generation (RAG), analytics, and AI workflows using structured and unstructured energy and commodities data.</div></td><td><span class="status-pill approved">Approved</span></td><td><div class="td-note">—</div></td></tr><tr onclick="openModal('ai_b6434d331ac7')"><td><span class="td-vendor">Salesforce</span></td><td><span class="td-tool">Salesforce + MCP Server</span></td><td><div class="td-desc">Provides an MCP interface to Salesforce data, enabling AI or automation tools to retrieve CRM context such as accounts, opportunities, and related metadata for business and operational use cases.</div></td><td><span class="status-pill approved">Approved</span></td><td><div class="td-note">—</div></td></tr><tr onclick="openModal('ai_605d429e563a')"><td><span class="td-vendor">Salesforce</span></td><td><span class="td-tool">Salesforce Einstein</span></td><td><div class="td-desc">Call Center co-pilot</div></td><td><span class="status-pill approved">Approved</span></td><td><div class="td-note">—</div></td></tr><tr onclick="openModal('ai_4871399ed6a9')"><td><span class="td-vendor">SaneBox</span></td><td><span class="td-tool">SaneBox</span></td><td><div class="td-desc">Email management tool that uses AI to prioritize, filter, and organize inbox messages and automate email workflows.</div></td><td><span class="status-pill not-approved">Not Approved</span></td><td><div class="td-note">Not approved due to direct email access, data privacy concerns, and external processing of communications.</div></td></tr><tr onclick="openModal('ai_44173fabeb5c')"><td><span class="td-vendor">Scribe</span></td><td><span class="td-tool">scribehow</span></td><td><div class="td-desc">Scribe automatically generates step-by-step guides from user actions. It simplifies documentation.</div></td><td><span class="status-pill not-approved">Not Approved</span></td><td><div class="td-note">Not approved because inaccurate auto-generated documentation can cause procedural errors.</div></td></tr><tr onclick="openModal('ai_8496ecb1d0de')"><td><span class="td-vendor">Seedance</span></td><td><span class="td-tool">Seedance</span></td><td><div class="td-desc">AI platform for workflow automation and generative AI use cases across content, data processing, and application development.</div></td><td><span class="status-pill not-approved">Not Approved</span></td><td><div class="td-note">Not approved due to insufficient transparency on AI usage, data controls, and governance posture.</div></td></tr><tr onclick="openModal('ai_76914084808f')"><td><span class="td-vendor">Session AI</span></td><td><span class="td-tool">Session AI</span></td><td><div class="td-desc">Uses patented behavioral AI to predict purchase intent in real-time and convert anonymous visitors into customers—without using personal data or cookies.</div></td><td><span class="status-pill not-approved">Not Approved</span></td><td><div class="td-note">Not approved as behavioral tracking raises concerns about profiling and consent.</div></td></tr><tr onclick="openModal('ai_88cddd5ae1b2')"><td><span class="td-vendor">SmartBear (Pactflow)</span></td><td><span class="td-tool">Pactflow + MCP Server</span></td><td><div class="td-desc">Provides an MCP interface to Pactflow contract data, enabling AI or automation tools to retrieve agreement metadata and contract context for compliance, review, and operational workflows.</div></td><td><span class="status-pill under-review">Under Review</span></td><td><div class="td-note">—</div></td></tr><tr onclick="openModal('ai_6bf1fd506166')"><td><span class="td-vendor">SonarSource</span></td><td><span class="td-tool">SonarQube / SonarCloud – AI Features (AI Code Assurance, AI CodeFix)</span></td><td><div class="td-desc">AI‑enabled code quality and security tooling that detects AI‑generated code, analyzes it for bugs and vulnerabilities, and provides AI‑assisted remediation suggestions within CI/CD and developer workflows.</div></td><td><span class="status-pill approved">Approved</span></td><td><div class="td-note">—</div></td></tr><tr onclick="openModal('ai_73b80eb6cc20')"><td><span class="td-vendor">Splunk Inc.</span></td><td><span class="td-tool">Splunk + MCP</span></td><td><div class="td-desc">Integration that enables AI agents to securely query and analyze Splunk Enterprise or Cloud data via the Model Context Protocol, allowing natural‑language driven searches, log analysis, and observability workflows with role‑based access controls.</div></td><td><span class="status-pill approved">Approved</span></td><td><div class="td-note">—</div></td></tr><tr onclick="openModal('ai_fda06dd60736')"><td><span class="td-vendor">Stack AI</span></td><td><span class="td-tool">StackAI</span></td><td><div class="td-desc">Platform for building AI assistants and workflows using multiple LLMs, enabling automation, data analysis, and chatbot development.</div></td><td><span class="status-pill not-approved">Not Approved</span></td><td><div class="td-note">Not approved due to multi-LLM integration risks, data handling concerns, and governance gaps.</div></td></tr><tr onclick="openModal('ai_e0aba1e201a8')"><td><span class="td-vendor">StepFun</span></td><td><span class="td-tool">StepFun AI</span></td><td><div class="td-desc">AI model and platform provider offering generative AI capabilities for enterprise applications including chat, automation, and data analysis.</div></td><td><span class="status-pill not-approved">Not Approved</span></td><td><div class="td-note">Not approved due to external model risks, limited governance visibility, and unclear compliance controls.</div></td></tr><tr onclick="openModal('ai_e479a2bbb845')"><td><span class="td-vendor">SundaySky</span></td><td><span class="td-tool">sundaysky</span></td><td><div class="td-desc">SundaySky enables personalized video creation using AI. It helps brands engage customers visually.</div></td><td><span class="status-pill not-approved">Not Approved</span></td><td><div class="td-note">Not approved because personalized videos may be misused to manipulate or mislead.</div></td></tr><tr onclick="openModal('ai_ca23e42a9a3b')"><td><span class="td-vendor">Suno Inc.</span></td><td><span class="td-tool">Suno AI</span></td><td><div class="td-desc">Generative AI platform for creating audio content including music and voice output.</div></td><td><span class="status-pill not-approved">Not Approved</span></td><td><div class="td-note">Unapproved generative AI tool with external data processing and unclear compliance controls.</div></td></tr><tr onclick="openModal('ai_35b65d18f508')"><td><span class="td-vendor">Synthesia</span></td><td><span class="td-tool">Synthesia</span></td><td><div class="td-desc">Creates videos using lifelike avatars from text scripts in 140+ languages.</div></td><td><span class="status-pill not-approved">Not Approved</span></td><td><div class="td-note">Not approved since avatars may misrepresent individuals and affect message authenticity.</div></td></tr><tr onclick="openModal('ai_0667b8c21a4d')"><td><span class="td-vendor">Tabnine</span></td><td><span class="td-tool">tabnine</span></td><td><div class="td-desc">Tabnine offers AI-powered code completions for various languages. It speeds up coding tasks.</div></td><td><span class="status-pill not-approved">Not Approved</span></td><td><div class="td-note">Not approved because generated code may introduce security vulnerabilities despite strong privacy controls.</div></td></tr><tr onclick="openModal('ai_88c8c8c91b7f')"><td><span class="td-vendor">Taboola</span></td><td><span class="td-tool">Taboola</span></td><td><div class="td-desc">Advertising and content recommendation platform that uses AI and machine learning to personalize content and optimize digital marketing campaigns.</div></td><td><span class="status-pill not-approved">Not Approved</span></td><td><div class="td-note">Not approved due to data sharing risks, tracking concerns, and lack of alignment with enterprise data governance policies.</div></td></tr><tr onclick="openModal('ai_4f4883e50628')"><td><span class="td-vendor">Tome AI</span></td><td><span class="td-tool">Tome AI</span></td><td><div class="td-desc">Tome AI helps sales teams craft personalized outreach and presentations by analyzing CRM and playbook data. It identifies strategic accounts and automates meeting preparation.</div></td><td><span class="status-pill not-approved">Not Approved</span></td><td><div class="td-note">Not approved as its effectiveness heavily depends on CRM data quality, creating dependency risks.</div></td></tr><tr onclick="openModal('ai_4203f3acff2d')"><td><span class="td-vendor">Torq</span></td><td><span class="td-tool">Torq</span></td><td><div class="td-desc">Agentic AI security automation (SOAR/Hyperautomation) platform for SOC teams. Uses AI agents to triage alerts, investigate threats, and automate security response with auditability and human‑in‑the‑loop controls.</div></td><td><span class="status-pill approved">Approved</span></td><td><div class="td-note">—</div></td></tr><tr onclick="openModal('ai_ef088e81eafb')"><td><span class="td-vendor">TrustClaw</span></td><td><span class="td-tool">TrustClaw</span></td><td><div class="td-desc">AI agent platform designed for automation and orchestration of workflows with integrated task execution capabilities.</div></td><td><span class="status-pill not-approved">Not Approved</span></td><td><div class="td-note">Not approved due to unclear security posture, integration risks, and lack of governance alignment.</div></td></tr><tr onclick="openModal('ai_851f12075c79')"><td><span class="td-vendor">UiPath</span></td><td><span class="td-tool">UiPath Automation Platform</span></td><td><div class="td-desc">Enterprise automation and RPA platform that combines workflow automation with AI‑assisted capabilities. Used to design, orchestrate, and run automated business processes across applications with governance, auditability, and enterprise controls.</div></td><td><span class="status-pill approved">Approved</span></td><td><div class="td-note">—</div></td></tr><tr onclick="openModal('ai_f09866c54fc8')"><td><span class="td-vendor">UseBlackbox</span></td><td><span class="td-tool">useblackbox</span></td><td><div class="td-desc">Blackbox AI helps developers with code search and generation. It improves coding productivity.</div></td><td><span class="status-pill not-approved">Not Approved</span></td><td><div class="td-note">Not approved because suggested code may lack best practices and introduce vulnerabilities.</div></td></tr><tr onclick="openModal('ai_155fbbb40943')"><td><span class="td-vendor">Vellum</span></td><td><span class="td-tool">Vellum AI</span></td><td><div class="td-desc">AI development platform for building, testing, and deploying LLM-powered workflows and applications with prompt orchestration and evaluation capabilities.</div></td><td><span class="status-pill not-approved">Not Approved</span></td><td><div class="td-note">Not approved due to integration risks with external LLMs, data handling concerns, and lack of enterprise governance controls.</div></td></tr><tr onclick="openModal('ai_80aca87392d0')"><td><span class="td-vendor">Vistar Media</span></td><td><span class="td-tool">vistarsagency</span></td><td><div class="td-desc">Vistar Media uses AI for programmatic advertising. It targets audiences across digital signage networks.</div></td><td><span class="status-pill not-approved">Not Approved</span></td><td><div class="td-note">Not approved since ad targeting may unintentionally exclude or stereotype groups.</div></td></tr><tr onclick="openModal('ai_a3d46cd0828c')"><td><span class="td-vendor">Vistars</span></td><td><span class="td-tool">Vistars AI</span></td><td><div class="td-desc">AI platform for analytics, automation, and insights generation using machine learning and generative AI technologies.</div></td><td><span class="status-pill not-approved">Not Approved</span></td><td><div class="td-note">Not approved due to unclear AI governance framework, external data processing, and lack of enterprise validation.</div></td></tr><tr onclick="openModal('ai_e6dfefe092af')"><td><span class="td-vendor">VocationHQ</span></td><td><span class="td-tool">Vocation AI Talent Management</span></td><td><div class="td-desc">AI‑powered talent management platform that uses AI‑driven interviews, engagement analysis, and predictive insights to identify employee turnover risk, provide coaching recommendations, and support managers with actionable workforce insights.</div></td><td><span class="status-pill under-review">Under Review</span></td><td><div class="td-note">—</div></td></tr><tr onclick="openModal('ai_27756778ccaf')"><td><span class="td-vendor">Wordtune</span></td><td><span class="td-tool">wordtune</span></td><td><div class="td-desc">Wordtune enhances writing by suggesting rephrasing and improvements. It helps users express ideas clearly.</div></td><td><span class="status-pill not-approved">Not Approved</span></td><td><div class="td-note">Not approved as tone changes may misrepresent original intent and lacks enterprise-grade certifications.</div></td></tr><tr onclick="openModal('ai_ws0c1c1a1001')"><td><span class="td-vendor">Workshop</span></td><td><span class="td-tool">CiCi AI</span></td><td><div class="td-desc">Conversational AI assistant that enables users to interact with generative AI for general assistance, content creation, and task support through a chat-based interface.</div></td><td><span class="status-pill approved">Approved</span></td><td><div class="td-note">—</div></td></tr><tr onclick="openModal('ai_3249894b534d')"><td><span class="td-vendor">Yellow.ai</span></td><td><span class="td-tool">yellow</span></td><td><div class="td-desc">Yellow.ai offers conversational AI for customer support. It automates interactions across channels.</div></td><td><span class="status-pill not-approved">Not Approved</span></td><td><div class="td-note">Not approved because automation errors in conversational AI can mishandle user queries.</div></td></tr><tr onclick="openModal('ai_6c89e7fea221')"><td><span class="td-vendor">Yellow.ai</span></td><td><span class="td-tool">yellowmessenger</span></td><td><div class="td-desc">Yellow.ai powers YellowMessenger for enterprise chatbots. It supports multilingual and omnichannel communication.</div></td><td><span class="status-pill not-approved">Not Approved</span></td><td><div class="td-note">Not approved since sensitive data in conversations must be protected from breaches.</div></td></tr><tr onclick="openModal('ai_d6744d6f4cc9')"><td><span class="td-vendor">ZeroClaw</span></td><td><span class="td-tool">ZeroClaw</span></td><td><div class="td-desc">AI agent framework for deploying autonomous assistants and automation workflows across environments.</div></td><td><span class="status-pill not-approved">Not Approved</span></td><td><div class="td-note">Not approved due to lack of enterprise controls, agent autonomy risks, and unclear data handling.</div></td></tr><tr onclick="openModal('ai_7fb5c411be7f')"><td><span class="td-vendor">Zhipu AI</span></td><td><span class="td-tool">GLM (Z.ai)</span></td><td><div class="td-desc">Large language model platform providing generative AI capabilities for chat, reasoning, coding, and application development workflows.</div></td><td><span class="status-pill not-approved">Not Approved</span></td><td><div class="td-note">Not approved due to data governance concerns, external hosting risks, and regulatory/compliance uncertainty.</div></td></tr></tbody>
+            </table>
+          </div>
+          <div class="table-count" id="table-count">159 tools</div>
+        </div>
+      </div>
+  
+    </div><!-- END CONTENT WRAPPER -->
+  
+    <!-- CTA -->
+    <div class="cta">
+      <div>
+        <h3>Have questions about an AI tool or vendor?</h3>
+        <p>Contact the AI Governance &amp; Enablement Team for review requests or guidance.</p>
+      </div>
+      <div class="cta-btns">
+        <a href="mailto:AIGovernance@parivedasolutions.com" class="btn btn-f">Contact the Team →</a>
+        <a href="" class="btn btn-o" target="_blank">Back to Hub</a>
+      </div>
+    </div>
+  
+  </div>
+  
+  <!-- ITEM MODAL (view / edit / add) -->
+  <div class="modal-backdrop" id="modal">
+    <div class="modal" onclick="event.stopPropagation()">
+      <div class="modal-head">
+        <div>
+          <h3 id="modal-title">Tool Details</h3>
+          <div class="modal-head-sub" id="modal-subid"></div>
+        </div>
+        <button class="modal-close" id="modal-close" aria-label="Close">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 6L6 18M6 6l12 12"></path></svg>
+        </button>
+      </div>
+  
+      <!-- VIEW MODE -->
+      <div class="modal-body" id="modal-view">
+        <div class="modal-field"><label>Vendor</label><div class="mf-val" id="v-vendor">—</div></div>
+        <div class="modal-field"><label>Tool</label><div class="mf-val" id="v-tool">—</div></div>
+        <div class="modal-field"><label>Status</label><div class="mf-val" id="v-status">—</div></div>
+        <div class="modal-field"><label>Description</label><div class="mf-val" id="v-description">—</div></div>
+        <div class="modal-field"><label>Note</label><div class="mf-val" id="v-note">—</div></div>
+      </div>
+  
+      <!-- EDIT MODE -->
+      <div class="modal-body" id="modal-edit" style="display:none">
+        <div class="modal-grid-2">
+          <div class="modal-field"><label>Vendor <span style="color:var(--mag)">*</span></label><input type="text" id="e-vendor" required=""></div>
+          <div class="modal-field"><label>Tool <span style="color:var(--mag)">*</span></label><input type="text" id="e-tool" required=""></div>
+        </div>
+        <div class="modal-field">
+          <label>Status <span style="color:var(--mag)">*</span></label>
+          <select id="e-status" required="">
+            <option value="Approved">Approved</option>
+            <option value="Not Approved">Not Approved</option>
+            <option value="Under Review">Under Review</option>
+            <option value="Under Legal Review">Under Legal Review</option>
+            <option value="Approved (API via GASI/DB)">Approved (API via GASI/DB)</option>
+            <option value="POC">POC</option>
+            <option value="Pilot">Pilot</option>
+            <option value="Business case/Project based">Business case/Project based</option>
+          </select>
+        </div>
+        <div class="modal-field"><label>Description</label><textarea id="e-description" rows="4"></textarea></div>
+        <div class="modal-field"><label>Note</label><textarea id="e-note" rows="3" placeholder="Optional rationale, context, or conditions of approval"></textarea></div>
+      </div>
+  
+  
+    </div>
+  </div>
+  
+  
+  
+  <script>
+  /* ====================================================================
+     POWER AUTOMATE ENDPOINT
+     Paste your HTTP trigger URL below once the flow is built.
+     Payload shape documented in the flow-integration comment block.
+     ==================================================================== */
+  var FLOW_URL = "__FLOW_URL_PLACEHOLDER__";
+  
+  /* ====================================================================
+     DATA — deterministic IDs (hash of vendor|tool). Edits/adds/deletes
+     send to FLOW_URL; on success, local state is updated optimistically.
+     ==================================================================== */
+  const INITIAL_DATA = [
+    {"id": "ai_4c8b7a6cdc4f", "vendor": "Kablecore", "tool": "Kablecore AI", "description": "AI knowledge assistant that retrieves and synthesizes information from connected data sources.", "status": "Not Approved", "note": "Not approved; processes business data without adequate security controls."},
+    {"id": "ai_bddd87d1acd5", "vendor": "Lumincore", "tool": "Lumincore AI", "description": "Intelligent document platform that ingests, organizes, and retrieves information using AI.", "status": "Approved", "note": ""},
+    {"id": "ai_7e10dea0978b", "vendor": "Databsys", "tool": "Databsys AI", "description": "AI agent framework for building and deploying autonomous assistants across environments.", "status": "Not Approved", "note": "Not approved due to regulatory and compliance uncertainty."},
+    {"id": "ai_b1f7b3b5b3ea", "vendor": "Pylonent", "tool": "Pylonent AI", "description": "Intelligent document platform that ingests, organizes, and retrieves information using AI.", "status": "Not Approved", "note": "Not approved because of unclear data handling and external hosting risks."},
+    {"id": "ai_a9e4ac0efa7a", "vendor": "Zephova", "tool": "Zephova AI", "description": "AI analytics solution that identifies trends and prioritizes opportunities from operational data.", "status": "Approved", "note": ""},
+    {"id": "ai_feef0d68b94e", "vendor": "Zephova", "tool": "Zephova Studio", "description": "AI knowledge assistant that retrieves and synthesizes information from connected data sources.", "status": "Approved", "note": ""},
+    {"id": "ai_1756e73de504", "vendor": "Xenoeon", "tool": "Xenoeon AI", "description": "Conversational AI tool that supports natural-language queries and task automation for end users.", "status": "Not Approved", "note": "Not approved; lacks verified enterprise controls and oversight."},
+    {"id": "ai_aba30d8b18c6", "vendor": "Verraity", "tool": "Verraity AI", "description": "AI observability service for monitoring, troubleshooting, and improving model performance in production.", "status": "Approved", "note": ""},
+    {"id": "ai_427abfc366dd", "vendor": "Verraity", "tool": "Verraity Studio", "description": "Intelligent document platform that ingests, organizes, and retrieves information using AI.", "status": "Approved", "note": ""},
+    {"id": "ai_11afb67307f0", "vendor": "Aurflow", "tool": "Aurflow AI", "description": "Intelligent document platform that ingests, organizes, and retrieves information using AI.", "status": "Approved", "note": ""},
+    {"id": "ai_52b6603fe4ec", "vendor": "Nimbforge", "tool": "Nimbforge AI", "description": "Large language model platform providing chat, reasoning, and content-generation capabilities via APIs.", "status": "Approved", "note": "Approved for API use within governed environments only."},
+    {"id": "ai_a0265f07cf3c", "vendor": "Nimbforge", "tool": "Nimbforge Studio", "description": "Machine learning service that analyzes data to recommend next-best actions and optimize outcomes.", "status": "Approved", "note": "Approved based on business case and project scope."},
+    {"id": "ai_6aa7f77e1b46", "vendor": "Nimbforge", "tool": "Nimbforge Platform", "description": "AI agent framework for building and deploying autonomous assistants across environments.", "status": "Approved", "note": "Approved for limited use; do not enter confidential information."},
+    {"id": "ai_81e2b012fe5a", "vendor": "Nimbforge", "tool": "Nimbforge Assistant", "description": "Intelligent document platform that ingests, organizes, and retrieves information using AI.", "status": "Under Review", "note": ""},
+    {"id": "ai_42154bc975ab", "vendor": "Orblogic", "tool": "Orblogic AI", "description": "AI-driven productivity assistant that automates updates and optimizes team collaboration.", "status": "Not Approved", "note": "Not approved; an enterprise-approved alternative already covers this use case."},
+    {"id": "ai_3b3d8b47bd48", "vendor": "Driftsphere", "tool": "Driftsphere AI", "description": "AI observability service for monitoring, troubleshooting, and improving model performance in production.", "status": "Not Approved", "note": "Not approved; lacks verified enterprise controls and oversight."},
+    {"id": "ai_a875a33f32b4", "vendor": "Onyxova", "tool": "Onyxova AI", "description": "Creative AI tool for generating images, copy, and designs to accelerate content production.", "status": "Not Approved", "note": "Not approved due to regulatory and compliance uncertainty."},
+    {"id": "ai_11093c2c1198", "vendor": "Corscale", "tool": "Corscale AI", "description": "AI-powered platform that automates routine workflows and surfaces insights for enterprise teams.", "status": "Not Approved", "note": "Not approved due to data security and governance concerns."},
+    {"id": "ai_c6dc3895b72d", "vendor": "Nimbora", "tool": "Nimbora AI", "description": "AI analytics solution that identifies trends and prioritizes opportunities from operational data.", "status": "Approved", "note": ""},
+    {"id": "ai_634559cbed4d", "vendor": "Runelytics", "tool": "Runelytics AI", "description": "AI-powered platform that automates routine workflows and surfaces insights for enterprise teams.", "status": "Not Approved", "note": "Not approved; an enterprise-approved alternative already covers this use case."},
+    {"id": "ai_a912056eedd9", "vendor": "Helixlytics", "tool": "Helixlytics AI", "description": "Creative AI tool for generating images, copy, and designs to accelerate content production.", "status": "Approved", "note": ""},
+    {"id": "ai_af7774fd60fa", "vendor": "Helixent", "tool": "Helixent AI", "description": "Intelligent document platform that ingests, organizes, and retrieves information using AI.", "status": "Approved", "note": ""},
+    {"id": "ai_0117b7a9f0b2", "vendor": "Synflow", "tool": "Synflow AI", "description": "AI observability service for monitoring, troubleshooting, and improving model performance in production.", "status": "Approved", "note": "Approved; covered under existing enterprise licensing."},
+    {"id": "ai_201ace0a6ad3", "vendor": "Taloora", "tool": "Taloora AI", "description": "AI-driven productivity assistant that automates updates and optimizes team collaboration.", "status": "Not Approved", "note": "Not approved; processes business data without adequate security controls."},
+    {"id": "ai_e870d077276c", "vendor": "Xenogrid", "tool": "Xenogrid AI", "description": "AI coding assistant that helps developers generate, review, and refactor code within their workflow.", "status": "Approved", "note": ""},
+    {"id": "ai_1d151f2da53f", "vendor": "Sablewave", "tool": "Sablewave AI", "description": "Large language model platform providing chat, reasoning, and content-generation capabilities via APIs.", "status": "Not Approved", "note": "Not approved; processes business data without adequate security controls."},
+    {"id": "ai_4552344f0ce2", "vendor": "Zephforge", "tool": "Zephforge AI", "description": "AI-powered platform that automates routine workflows and surfaces insights for enterprise teams.", "status": "Approved", "note": ""},
+    {"id": "ai_b7271a674862", "vendor": "Yaraflow", "tool": "Yaraflow AI", "description": "AI knowledge assistant that retrieves and synthesizes information from connected data sources.", "status": "Not Approved", "note": "Not approved due to regulatory and compliance uncertainty."},
+    {"id": "ai_6d7a97477826", "vendor": "Driftbit", "tool": "Driftbit AI", "description": "AI-powered platform that automates routine workflows and surfaces insights for enterprise teams.", "status": "Not Approved", "note": "Not approved due to privacy concerns and insufficient safeguards."},
+    {"id": "ai_4cd1c1035bb0", "vendor": "Harkgrid", "tool": "Harkgrid AI", "description": "Machine learning service that analyzes data to recommend next-best actions and optimize outcomes.", "status": "Not Approved", "note": "Not approved; processes business data without adequate security controls."},
+    {"id": "ai_d12f2ad45755", "vendor": "Vanteon", "tool": "Vanteon AI", "description": "AI coding assistant that helps developers generate, review, and refactor code within their workflow.", "status": "Not Approved", "note": "Not approved due to data security and governance concerns."},
+    {"id": "ai_5e2ef3b2d362", "vendor": "Kablebit", "tool": "Kablebit AI", "description": "Conversational AI tool that supports natural-language queries and task automation for end users.", "status": "Approved", "note": "Approved for limited use; do not enter confidential information."},
+    {"id": "ai_febfd08fb3d6", "vendor": "Quillent", "tool": "Quillent AI", "description": "Automation platform that uses AI to streamline administrative and operational processes.", "status": "Not Approved", "note": "Not approved because of unclear data handling and external hosting risks."},
+    {"id": "ai_ecf8979507b0", "vendor": "Briologic", "tool": "Briologic AI", "description": "Intelligent document platform that ingests, organizes, and retrieves information using AI.", "status": "Not Approved", "note": "Not approved because of unclear data handling and external hosting risks."},
+    {"id": "ai_89574d62461b", "vendor": "Kablely", "tool": "Kablely AI", "description": "Large language model platform providing chat, reasoning, and content-generation capabilities via APIs.", "status": "Approved", "note": "Approved; covered under existing enterprise licensing."},
+    {"id": "ai_2f6f2f0ff278", "vendor": "Quantwave", "tool": "Quantwave AI", "description": "Creative AI tool for generating images, copy, and designs to accelerate content production.", "status": "Under Review", "note": ""},
+    {"id": "ai_4e49da083872", "vendor": "Irisora", "tool": "Irisora AI", "description": "AI-powered platform that automates routine workflows and surfaces insights for enterprise teams.", "status": "Not Approved", "note": "Not approved; processes business data without adequate security controls."},
+    {"id": "ai_bdc6edec0945", "vendor": "Umbraforge", "tool": "Umbraforge AI", "description": "Enterprise AI platform delivering secure, governed access to generative and predictive capabilities.", "status": "Not Approved", "note": "Not approved; an enterprise-approved alternative already covers this use case."},
+    {"id": "ai_6872ec3e61c6", "vendor": "Novlogic", "tool": "Novlogic AI", "description": "AI analytics solution that identifies trends and prioritizes opportunities from operational data.", "status": "Approved", "note": "Approved for limited use; do not enter confidential information."},
+    {"id": "ai_11e217721f8c", "vendor": "Nexity", "tool": "Nexity AI", "description": "Intelligent document platform that ingests, organizes, and retrieves information using AI.", "status": "Approved", "note": ""},
+    {"id": "ai_8a1e8ef8e09d", "vendor": "Vantforge", "tool": "Vantforge AI", "description": "AI observability service for monitoring, troubleshooting, and improving model performance in production.", "status": "Under Review", "note": ""},
+    {"id": "ai_1857e5dae8e5", "vendor": "Pylonscale", "tool": "Pylonscale AI", "description": "Creative AI tool for generating images, copy, and designs to accelerate content production.", "status": "Under Review", "note": ""},
+    {"id": "ai_1f1cff73b00f", "vendor": "Databara", "tool": "Databara AI", "description": "AI observability service for monitoring, troubleshooting, and improving model performance in production.", "status": "Approved", "note": ""},
+    {"id": "ai_79e4f981c328", "vendor": "Corlytics", "tool": "Corlytics AI", "description": "Generative AI assistant for drafting, summarizing, and analyzing content across business use cases.", "status": "Approved", "note": ""},
+    {"id": "ai_e2efd4303129", "vendor": "Coreon", "tool": "Coreon AI", "description": "AI-powered platform that automates routine workflows and surfaces insights for enterprise teams.", "status": "Approved", "note": ""},
+    {"id": "ai_babab6a3b162", "vendor": "Coreon", "tool": "Coreon Studio", "description": "Conversational AI tool that supports natural-language queries and task automation for end users.", "status": "Under Review", "note": ""},
+    {"id": "ai_fd1399c6f4aa", "vendor": "Talocore", "tool": "Talocore AI", "description": "AI coding assistant that helps developers generate, review, and refactor code within their workflow.", "status": "Not Approved", "note": "Not approved due to regulatory and compliance uncertainty."},
+    {"id": "ai_3897f6a81c1c", "vendor": "Glyphwave", "tool": "Glyphwave AI", "description": "AI coding assistant that helps developers generate, review, and refactor code within their workflow.", "status": "Under Review", "note": ""},
+    {"id": "ai_7beebb8ad1e7", "vendor": "Datablogic", "tool": "Datablogic AI", "description": "Machine learning service that analyzes data to recommend next-best actions and optimize outcomes.", "status": "Not Approved", "note": "Not approved due to data security and governance concerns."},
+    {"id": "ai_01258cb6a670", "vendor": "Umbraeon", "tool": "Umbraeon AI", "description": "AI-powered platform that automates routine workflows and surfaces insights for enterprise teams.", "status": "Approved", "note": ""},
+    {"id": "ai_b2aeb4838adb", "vendor": "Quantsys", "tool": "Quantsys AI", "description": "Intelligent document platform that ingests, organizes, and retrieves information using AI.", "status": "Under Review", "note": ""},
+    {"id": "ai_be8c98064c70", "vendor": "Apexcore", "tool": "Apexcore AI", "description": "AI observability service for monitoring, troubleshooting, and improving model performance in production.", "status": "Approved", "note": ""},
+    {"id": "ai_2cb9f3c2dd01", "vendor": "Apexcore", "tool": "Apexcore Studio", "description": "AI knowledge assistant that retrieves and synthesizes information from connected data sources.", "status": "Approved", "note": "Approved for limited use; do not enter confidential information."},
+    {"id": "ai_7b8fa6a95d9b", "vendor": "Apexcore", "tool": "Apexcore Platform", "description": "AI observability service for monitoring, troubleshooting, and improving model performance in production.", "status": "Approved", "note": "Approved for API use within governed environments only."},
+    {"id": "ai_89b9e239c067", "vendor": "Apexcore", "tool": "Apexcore Assistant", "description": "Creative AI tool for generating images, copy, and designs to accelerate content production.", "status": "Approved", "note": "Approved for limited use; do not enter confidential information."},
+    {"id": "ai_31af228082d0", "vendor": "Apexcore", "tool": "Apexcore Copilot", "description": "AI knowledge assistant that retrieves and synthesizes information from connected data sources.", "status": "Approved", "note": ""},
+    {"id": "ai_387263dad8b5", "vendor": "Apexcore", "tool": "Apexcore Cloud", "description": "Conversational AI tool that supports natural-language queries and task automation for end users.", "status": "Approved", "note": ""},
+    {"id": "ai_f57fd0887506", "vendor": "Apexcore", "tool": "Apexcore Insight", "description": "Predictive analytics engine that forecasts demand and informs planning decisions.", "status": "Approved", "note": "Approved; covered under existing enterprise licensing."},
+    {"id": "ai_589474237c43", "vendor": "Apexcore", "tool": "Apexcore Flow", "description": "Machine learning service that analyzes data to recommend next-best actions and optimize outcomes.", "status": "Approved", "note": "Approved; covered under existing enterprise licensing."},
+    {"id": "ai_afa62b4cb1da", "vendor": "Apexcore", "tool": "Apexcore Sense", "description": "Creative AI tool for generating images, copy, and designs to accelerate content production.", "status": "Approved", "note": ""},
+    {"id": "ai_b1b8f845e015", "vendor": "Helixlogic", "tool": "Helixlogic AI", "description": "Large language model platform providing chat, reasoning, and content-generation capabilities via APIs.", "status": "Approved", "note": ""},
+    {"id": "ai_576ff7ed5980", "vendor": "Pylongrid", "tool": "Pylongrid AI", "description": "Intelligent document platform that ingests, organizes, and retrieves information using AI.", "status": "Under Review", "note": ""},
+    {"id": "ai_cf45869fabce", "vendor": "Taloeon", "tool": "Taloeon AI", "description": "AI-powered platform that automates routine workflows and surfaces insights for enterprise teams.", "status": "Not Approved", "note": "Not approved because of unclear data handling and external hosting risks."},
+    {"id": "ai_39c00f6c8caa", "vendor": "Harkity", "tool": "Harkity AI", "description": "AI-powered platform that automates routine workflows and surfaces insights for enterprise teams.", "status": "Not Approved", "note": "Not approved due to regulatory and compliance uncertainty."},
+    {"id": "ai_6dddd0046d6c", "vendor": "Yaracore", "tool": "Yaracore AI", "description": "AI analytics solution that identifies trends and prioritizes opportunities from operational data.", "status": "Not Approved", "note": "Not approved; an enterprise-approved alternative already covers this use case."},
+    {"id": "ai_46de55350ab3", "vendor": "Glyphcore", "tool": "Glyphcore AI", "description": "AI-powered platform that automates routine workflows and surfaces insights for enterprise teams.", "status": "Approved", "note": ""},
+    {"id": "ai_87c780ed9e27", "vendor": "Onyxity", "tool": "Onyxity AI", "description": "AI knowledge assistant that retrieves and synthesizes information from connected data sources.", "status": "Not Approved", "note": "Not approved; processes business data without adequate security controls."},
+    {"id": "ai_59a3d965ae09", "vendor": "Nimbflow", "tool": "Nimbflow AI", "description": "Large language model platform providing chat, reasoning, and content-generation capabilities via APIs.", "status": "Not Approved", "note": "Not approved due to privacy concerns and insufficient safeguards."},
+    {"id": "ai_74e1cf5d5b79", "vendor": "Sablelytics", "tool": "Sablelytics AI", "description": "AI agent framework for building and deploying autonomous assistants across environments.", "status": "Not Approved", "note": "Not approved; lacks verified enterprise controls and oversight."},
+    {"id": "ai_b37cdbbf8871", "vendor": "Cirawave", "tool": "Cirawave AI", "description": "Machine learning service that analyzes data to recommend next-best actions and optimize outcomes.", "status": "Not Approved", "note": "Not approved due to privacy concerns and insufficient safeguards."},
+    {"id": "ai_1a775b206f74", "vendor": "Synova", "tool": "Synova AI", "description": "Generative AI assistant for drafting, summarizing, and analyzing content across business use cases.", "status": "Not Approved", "note": "Not approved; processes business data without adequate security controls."},
+    {"id": "ai_72fed1208d5d", "vendor": "Wispforge", "tool": "Wispforge AI", "description": "Machine learning service that analyzes data to recommend next-best actions and optimize outcomes.", "status": "Not Approved", "note": "Not approved due to data security and governance concerns."},
+    {"id": "ai_lansweeper01", "vendor": "Emberwave", "tool": "Emberwave AI", "description": "Intelligent document platform that ingests, organizes, and retrieves information using AI.", "status": "Approved", "note": ""},
+    {"id": "ai_c56822c662cf", "vendor": "Nexcore", "tool": "Nexcore AI", "description": "AI-driven productivity assistant that automates updates and optimizes team collaboration.", "status": "Under Review", "note": ""},
+    {"id": "ai_d92daffa6356", "vendor": "Sablebit", "tool": "Sablebit AI", "description": "Predictive analytics engine that forecasts demand and informs planning decisions.", "status": "Not Approved", "note": "Not approved; processes business data without adequate security controls."},
+    {"id": "ai_d75af89f0e4f", "vendor": "Kablelogic", "tool": "Kablelogic AI", "description": "Machine learning service that analyzes data to recommend next-best actions and optimize outcomes.", "status": "Not Approved", "note": "Not approved; an enterprise-approved alternative already covers this use case."},
+    {"id": "ai_c189ed06875e", "vendor": "Taloent", "tool": "Taloent AI", "description": "Automation platform that uses AI to streamline administrative and operational processes.", "status": "Not Approved", "note": "Not approved; lacks verified enterprise controls and oversight."},
+    {"id": "ai_c3a080a3ff47", "vendor": "Zephgrid", "tool": "Zephgrid AI", "description": "Creative AI tool for generating images, copy, and designs to accelerate content production.", "status": "Approved", "note": ""},
+    {"id": "ai_ce3ba579464e", "vendor": "Zephgrid", "tool": "Zephgrid Studio", "description": "Automation platform that uses AI to streamline administrative and operational processes.", "status": "Approved", "note": ""},
+    {"id": "ai_7df51571331c", "vendor": "Umbraova", "tool": "Umbraova AI", "description": "Predictive analytics engine that forecasts demand and informs planning decisions.", "status": "Not Approved", "note": "Not approved; an enterprise-approved alternative already covers this use case."},
+    {"id": "ai_f2329cc59771", "vendor": "Vantix", "tool": "Vantix AI", "description": "Creative AI tool for generating images, copy, and designs to accelerate content production.", "status": "Not Approved", "note": "Not approved; processes business data without adequate security controls."},
+    {"id": "ai_b13344bb4216", "vendor": "Nimbent", "tool": "Nimbent AI", "description": "Enterprise AI platform delivering secure, governed access to generative and predictive capabilities.", "status": "Approved", "note": "Approved for limited use; do not enter confidential information."},
+    {"id": "ai_a5af9b6be8e4", "vendor": "Nimbent", "tool": "Nimbent Studio", "description": "Generative AI assistant for drafting, summarizing, and analyzing content across business use cases.", "status": "Under Review", "note": ""},
+    {"id": "ai_b5871ae0837e", "vendor": "Helixgrid", "tool": "Helixgrid AI", "description": "AI coding assistant that helps developers generate, review, and refactor code within their workflow.", "status": "Approved", "note": ""},
+    {"id": "ai_554d97ede293", "vendor": "Helixgrid", "tool": "Helixgrid Studio", "description": "Conversational AI tool that supports natural-language queries and task automation for end users.", "status": "Approved", "note": ""},
+    {"id": "ai_897b151b0e24", "vendor": "Helixgrid", "tool": "Helixgrid Platform", "description": "Intelligent document platform that ingests, organizes, and retrieves information using AI.", "status": "Approved", "note": ""},
+    {"id": "ai_7f5414d871cc", "vendor": "Helixgrid", "tool": "Helixgrid Assistant", "description": "AI agent framework for building and deploying autonomous assistants across environments.", "status": "Approved", "note": "Approved for limited use; do not enter confidential information."},
+    {"id": "ai_0a07b6a061c7", "vendor": "Helixgrid", "tool": "Helixgrid Copilot", "description": "AI agent framework for building and deploying autonomous assistants across environments.", "status": "Approved", "note": ""},
+    {"id": "ai_c6c701499322", "vendor": "Helixgrid", "tool": "Helixgrid Cloud", "description": "AI agent framework for building and deploying autonomous assistants across environments.", "status": "Approved", "note": ""},
+    {"id": "ai_1e7dd381b555", "vendor": "Embercore", "tool": "Embercore AI", "description": "Generative AI assistant for drafting, summarizing, and analyzing content across business use cases.", "status": "Not Approved", "note": "Not approved because of unclear data handling and external hosting risks."},
+    {"id": "ai_e2ae194e1573", "vendor": "Corgrid", "tool": "Corgrid AI", "description": "Generative AI assistant for drafting, summarizing, and analyzing content across business use cases.", "status": "Not Approved", "note": "Not approved because of model governance and data residency concerns."},
+    {"id": "ai_5589c61d3ea8", "vendor": "Novsphere", "tool": "Novsphere AI", "description": "AI agent framework for building and deploying autonomous assistants across environments.", "status": "Not Approved", "note": "Not approved; lacks verified enterprise controls and oversight."},
+    {"id": "ai_629ffd0d1d56", "vendor": "Miraix", "tool": "Miraix AI", "description": "AI agent framework for building and deploying autonomous assistants across environments.", "status": "Approved", "note": ""},
+    {"id": "ai_ced8acc35252", "vendor": "Irislogic", "tool": "Irislogic AI", "description": "Intelligent document platform that ingests, organizes, and retrieves information using AI.", "status": "Not Approved", "note": "Not approved; processes business data without adequate security controls."},
+    {"id": "ai_7f24ca22c771", "vendor": "Fluxware", "tool": "Fluxware AI", "description": "AI agent framework for building and deploying autonomous assistants across environments.", "status": "Not Approved", "note": "Not approved; an enterprise-approved alternative already covers this use case."},
+    {"id": "ai_52bd668cf1a5", "vendor": "Sablecore", "tool": "Sablecore AI", "description": "Predictive analytics engine that forecasts demand and informs planning decisions.", "status": "Not Approved", "note": "Not approved due to regulatory and compliance uncertainty."},
+    {"id": "ai_76b25227535f", "vendor": "Synent", "tool": "Synent AI", "description": "Enterprise AI platform delivering secure, governed access to generative and predictive capabilities.", "status": "Not Approved", "note": "Not approved due to privacy concerns and insufficient safeguards."},
+    {"id": "ai_1f1bc8e3cdfc", "vendor": "Verragrid", "tool": "Verragrid AI", "description": "AI agent framework for building and deploying autonomous assistants across environments.", "status": "Approved", "note": ""},
+    {"id": "ai_20c4ebbb40aa", "vendor": "Vantsphere", "tool": "Vantsphere AI", "description": "Conversational AI tool that supports natural-language queries and task automation for end users.", "status": "Not Approved", "note": "Not approved due to regulatory and compliance uncertainty."},
+    {"id": "ai_db709cc74215", "vendor": "Luminsphere", "tool": "Luminsphere AI", "description": "AI agent framework for building and deploying autonomous assistants across environments.", "status": "Not Approved", "note": "Not approved; lacks verified enterprise controls and oversight."},
+    {"id": "ai_b2c51263d51f", "vendor": "Luminsphere", "tool": "Luminsphere Studio", "description": "Machine learning service that analyzes data to recommend next-best actions and optimize outcomes.", "status": "Not Approved", "note": "Not approved; an enterprise-approved alternative already covers this use case."},
+    {"id": "ai_c0f263b51130", "vendor": "Corova", "tool": "Corova AI", "description": "Large language model platform providing chat, reasoning, and content-generation capabilities via APIs.", "status": "Not Approved", "note": "Not approved; an enterprise-approved alternative already covers this use case."},
+    {"id": "ai_460c985f4876", "vendor": "Junogrid", "tool": "Junogrid AI", "description": "Machine learning service that analyzes data to recommend next-best actions and optimize outcomes.", "status": "Approved", "note": ""},
+    {"id": "ai_9a50bafee993", "vendor": "Quillgrid", "tool": "Quillgrid AI", "description": "AI-driven productivity assistant that automates updates and optimizes team collaboration.", "status": "Not Approved", "note": "Not approved; lacks verified enterprise controls and oversight."},
+    {"id": "ai_985883e0b26e", "vendor": "Databgrid", "tool": "Databgrid AI", "description": "AI-powered platform that automates routine workflows and surfaces insights for enterprise teams.", "status": "Not Approved", "note": "Not approved because of model governance and data residency concerns."},
+    {"id": "ai_5ad64c57717b", "vendor": "Nimbly", "tool": "Nimbly AI", "description": "AI-powered platform that automates routine workflows and surfaces insights for enterprise teams.", "status": "Not Approved", "note": "Not approved due to privacy concerns and insufficient safeguards."},
+    {"id": "ai_98d98a852f35", "vendor": "Talogrid", "tool": "Talogrid AI", "description": "Machine learning service that analyzes data to recommend next-best actions and optimize outcomes.", "status": "Approved", "note": "Approved for limited use; do not enter confidential information."},
+    {"id": "ai_b0414b747f63", "vendor": "Talogrid", "tool": "Talogrid Studio", "description": "AI agent framework for building and deploying autonomous assistants across environments.", "status": "Approved", "note": "Approved for API use within governed environments only."},
+    {"id": "ai_c785ff4f52f1", "vendor": "Talogrid", "tool": "Talogrid Platform", "description": "Machine learning service that analyzes data to recommend next-best actions and optimize outcomes.", "status": "Under Review", "note": ""},
+    {"id": "ai_df60dcbb880b", "vendor": "Orbwave", "tool": "Orbwave AI", "description": "AI analytics solution that identifies trends and prioritizes opportunities from operational data.", "status": "Not Approved", "note": "Not approved because of unclear data handling and external hosting risks."},
+    {"id": "ai_4450ff6db9ab", "vendor": "Pylonflow", "tool": "Pylonflow AI", "description": "AI coding assistant that helps developers generate, review, and refactor code within their workflow.", "status": "Not Approved", "note": "Not approved because of unclear data handling and external hosting risks."},
+    {"id": "ai_6c12be34bc32", "vendor": "Runeent", "tool": "Runeent AI", "description": "Enterprise AI platform delivering secure, governed access to generative and predictive capabilities.", "status": "Not Approved", "note": "Not approved due to data security and governance concerns."},
+    {"id": "ai_c81236a6bc2c", "vendor": "Harkwave", "tool": "Harkwave AI", "description": "AI observability service for monitoring, troubleshooting, and improving model performance in production.", "status": "Under Review", "note": ""},
+    {"id": "ai_698ee9d09716", "vendor": "Xenoent", "tool": "Xenoent AI", "description": "AI-powered platform that automates routine workflows and surfaces insights for enterprise teams.", "status": "Under Review", "note": ""},
+    {"id": "ai_9c4b8015140d", "vendor": "Embergrid", "tool": "Embergrid AI", "description": "Large language model platform providing chat, reasoning, and content-generation capabilities via APIs.", "status": "Not Approved", "note": "Not approved; lacks verified enterprise controls and oversight."},
+    {"id": "ai_68e337306e6b", "vendor": "Nimbsphere", "tool": "Nimbsphere AI", "description": "Machine learning service that analyzes data to recommend next-best actions and optimize outcomes.", "status": "Approved", "note": ""},
+    {"id": "ai_d09802080a20", "vendor": "Wispscale", "tool": "Wispscale AI", "description": "Enterprise AI platform delivering secure, governed access to generative and predictive capabilities.", "status": "Approved", "note": ""},
+    {"id": "ai_8cfc0b984778", "vendor": "Umbrasphere", "tool": "Umbrasphere AI", "description": "Generative AI assistant for drafting, summarizing, and analyzing content across business use cases.", "status": "Not Approved", "note": "Not approved due to regulatory and compliance uncertainty."},
+    {"id": "ai_1ebf9742bb85", "vendor": "Corflow", "tool": "Corflow AI", "description": "Creative AI tool for generating images, copy, and designs to accelerate content production.", "status": "Not Approved", "note": "Not approved due to regulatory and compliance uncertainty."},
+    {"id": "ai_70c5a299901c", "vendor": "Zephent", "tool": "Zephent AI", "description": "Creative AI tool for generating images, copy, and designs to accelerate content production.", "status": "Not Approved", "note": "Not approved due to data security and governance concerns."},
+    {"id": "ai_d2a482456725", "vendor": "Luminforge", "tool": "Luminforge AI", "description": "AI observability service for monitoring, troubleshooting, and improving model performance in production.", "status": "Approved", "note": ""},
+    {"id": "ai_f736b80b1e39", "vendor": "Synlogic", "tool": "Synlogic AI", "description": "AI observability service for monitoring, troubleshooting, and improving model performance in production.", "status": "Not Approved", "note": "Not approved due to data security and governance concerns."},
+    {"id": "ai_392a33f7337d", "vendor": "Xenoara", "tool": "Xenoara AI", "description": "Automation platform that uses AI to streamline administrative and operational processes.", "status": "Not Approved", "note": "Not approved; lacks verified enterprise controls and oversight."},
+    {"id": "ai_618b85934273", "vendor": "Talolytics", "tool": "Talolytics AI", "description": "Enterprise AI platform delivering secure, governed access to generative and predictive capabilities.", "status": "Not Approved", "note": "Not approved; an enterprise-approved alternative already covers this use case."},
+    {"id": "ai_e52b146523c2", "vendor": "Runesphere", "tool": "Runesphere AI", "description": "Enterprise AI platform delivering secure, governed access to generative and predictive capabilities.", "status": "Not Approved", "note": "Not approved because of model governance and data residency concerns."},
+    {"id": "ai_replicant01", "vendor": "Cirasys", "tool": "Cirasys AI", "description": "AI observability service for monitoring, troubleshooting, and improving model performance in production.", "status": "Approved", "note": ""},
+    {"id": "ai_430c2978c912", "vendor": "Nimblogic", "tool": "Nimblogic AI", "description": "Automation platform that uses AI to streamline administrative and operational processes.", "status": "Not Approved", "note": "Not approved; lacks verified enterprise controls and oversight."},
+    {"id": "ai_d7fa8d37cc88", "vendor": "Brioscale", "tool": "Brioscale AI", "description": "Large language model platform providing chat, reasoning, and content-generation capabilities via APIs.", "status": "Approved", "note": ""},
+    {"id": "ai_b6434d331ac7", "vendor": "Irislytics", "tool": "Irislytics AI", "description": "AI-driven productivity assistant that automates updates and optimizes team collaboration.", "status": "Approved", "note": ""},
+    {"id": "ai_605d429e563a", "vendor": "Irislytics", "tool": "Irislytics Studio", "description": "Predictive analytics engine that forecasts demand and informs planning decisions.", "status": "Approved", "note": ""},
+    {"id": "ai_4871399ed6a9", "vendor": "Nexlogic", "tool": "Nexlogic AI", "description": "AI-driven productivity assistant that automates updates and optimizes team collaboration.", "status": "Not Approved", "note": "Not approved; lacks verified enterprise controls and oversight."},
+    {"id": "ai_44173fabeb5c", "vendor": "Novscale", "tool": "Novscale AI", "description": "Machine learning service that analyzes data to recommend next-best actions and optimize outcomes.", "status": "Not Approved", "note": "Not approved due to privacy concerns and insufficient safeguards."},
+    {"id": "ai_8496ecb1d0de", "vendor": "Zephlogic", "tool": "Zephlogic AI", "description": "Conversational AI tool that supports natural-language queries and task automation for end users.", "status": "Not Approved", "note": "Not approved; an enterprise-approved alternative already covers this use case."},
+    {"id": "ai_76914084808f", "vendor": "Lyrasphere", "tool": "Lyrasphere AI", "description": "AI-powered platform that automates routine workflows and surfaces insights for enterprise teams.", "status": "Not Approved", "note": "Not approved due to regulatory and compliance uncertainty."},
+    {"id": "ai_88cddd5ae1b2", "vendor": "Apexova", "tool": "Apexova AI", "description": "AI-driven productivity assistant that automates updates and optimizes team collaboration.", "status": "Under Review", "note": ""},
+    {"id": "ai_6bf1fd506166", "vendor": "Velware", "tool": "Velware AI", "description": "Conversational AI tool that supports natural-language queries and task automation for end users.", "status": "Approved", "note": ""},
+    {"id": "ai_73b80eb6cc20", "vendor": "Briolytics", "tool": "Briolytics AI", "description": "AI observability service for monitoring, troubleshooting, and improving model performance in production.", "status": "Approved", "note": ""},
+    {"id": "ai_fda06dd60736", "vendor": "Miralytics", "tool": "Miralytics AI", "description": "Conversational AI tool that supports natural-language queries and task automation for end users.", "status": "Not Approved", "note": "Not approved; processes business data without adequate security controls."},
+    {"id": "ai_e0aba1e201a8", "vendor": "Novara", "tool": "Novara AI", "description": "Large language model platform providing chat, reasoning, and content-generation capabilities via APIs.", "status": "Not Approved", "note": "Not approved because of unclear data handling and external hosting risks."},
+    {"id": "ai_e479a2bbb845", "vendor": "Talosys", "tool": "Talosys AI", "description": "Machine learning service that analyzes data to recommend next-best actions and optimize outcomes.", "status": "Not Approved", "note": "Not approved; an enterprise-approved alternative already covers this use case."},
+    {"id": "ai_ca23e42a9a3b", "vendor": "Wispara", "tool": "Wispara AI", "description": "Automation platform that uses AI to streamline administrative and operational processes.", "status": "Not Approved", "note": "Not approved due to regulatory and compliance uncertainty."},
+    {"id": "ai_35b65d18f508", "vendor": "Orbflow", "tool": "Orbflow AI", "description": "Generative AI assistant for drafting, summarizing, and analyzing content across business use cases.", "status": "Not Approved", "note": "Not approved due to regulatory and compliance uncertainty."},
+    {"id": "ai_0667b8c21a4d", "vendor": "Zephity", "tool": "Zephity AI", "description": "Intelligent document platform that ingests, organizes, and retrieves information using AI.", "status": "Not Approved", "note": "Not approved due to regulatory and compliance uncertainty."},
+    {"id": "ai_88c8c8c91b7f", "vendor": "Verraix", "tool": "Verraix AI", "description": "Large language model platform providing chat, reasoning, and content-generation capabilities via APIs.", "status": "Not Approved", "note": "Not approved because of unclear data handling and external hosting risks."},
+    {"id": "ai_4f4883e50628", "vendor": "Fluxsys", "tool": "Fluxsys AI", "description": "Large language model platform providing chat, reasoning, and content-generation capabilities via APIs.", "status": "Not Approved", "note": "Not approved due to data security and governance concerns."},
+    {"id": "ai_4203f3acff2d", "vendor": "Xenoity", "tool": "Xenoity AI", "description": "AI-powered platform that automates routine workflows and surfaces insights for enterprise teams.", "status": "Approved", "note": ""},
+    {"id": "ai_ef088e81eafb", "vendor": "Xenoware", "tool": "Xenoware AI", "description": "Large language model platform providing chat, reasoning, and content-generation capabilities via APIs.", "status": "Not Approved", "note": "Not approved due to regulatory and compliance uncertainty."},
+    {"id": "ai_851f12075c79", "vendor": "Novly", "tool": "Novly AI", "description": "Large language model platform providing chat, reasoning, and content-generation capabilities via APIs.", "status": "Approved", "note": ""},
+    {"id": "ai_f09866c54fc8", "vendor": "Junoity", "tool": "Junoity AI", "description": "Machine learning service that analyzes data to recommend next-best actions and optimize outcomes.", "status": "Not Approved", "note": "Not approved; lacks verified enterprise controls and oversight."},
+    {"id": "ai_155fbbb40943", "vendor": "Harkix", "tool": "Harkix AI", "description": "AI-powered platform that automates routine workflows and surfaces insights for enterprise teams.", "status": "Not Approved", "note": "Not approved because of model governance and data residency concerns."},
+    {"id": "ai_80aca87392d0", "vendor": "Aurlytics", "tool": "Aurlytics AI", "description": "AI coding assistant that helps developers generate, review, and refactor code within their workflow.", "status": "Not Approved", "note": "Not approved; an enterprise-approved alternative already covers this use case."},
+    {"id": "ai_a3d46cd0828c", "vendor": "Ciralogic", "tool": "Ciralogic AI", "description": "Generative AI assistant for drafting, summarizing, and analyzing content across business use cases.", "status": "Not Approved", "note": "Not approved; processes business data without adequate security controls."},
+    {"id": "ai_e6dfefe092af", "vendor": "Quillsphere", "tool": "Quillsphere AI", "description": "Machine learning service that analyzes data to recommend next-best actions and optimize outcomes.", "status": "Under Review", "note": ""},
+    {"id": "ai_27756778ccaf", "vendor": "Pylonwave", "tool": "Pylonwave AI", "description": "AI analytics solution that identifies trends and prioritizes opportunities from operational data.", "status": "Not Approved", "note": "Not approved due to regulatory and compliance uncertainty."},
+    {"id": "ai_ws0c1c1a1001", "vendor": "Velwave", "tool": "Velwave AI", "description": "AI observability service for monitoring, troubleshooting, and improving model performance in production.", "status": "Approved", "note": ""},
+    {"id": "ai_3249894b534d", "vendor": "Driftflow", "tool": "Driftflow AI", "description": "Intelligent document platform that ingests, organizes, and retrieves information using AI.", "status": "Not Approved", "note": "Not approved due to data security and governance concerns."},
+    {"id": "ai_6c89e7fea221", "vendor": "Driftflow", "tool": "Driftflow Studio", "description": "AI-powered platform that automates routine workflows and surfaces insights for enterprise teams.", "status": "Not Approved", "note": "Not approved because of unclear data handling and external hosting risks."},
+    {"id": "ai_d6744d6f4cc9", "vendor": "Emberent", "tool": "Emberent AI", "description": "AI observability service for monitoring, troubleshooting, and improving model performance in production.", "status": "Not Approved", "note": "Not approved because of unclear data handling and external hosting risks."},
+    {"id": "ai_7fb5c411be7f", "vendor": "Vantwave", "tool": "Vantwave AI", "description": "AI-driven productivity assistant that automates updates and optimizes team collaboration.", "status": "Not Approved", "note": "Not approved because of model governance and data residency concerns."}
+  ];
+  
+  /* ── State ── */
+  var DATA = INITIAL_DATA.slice();
+  var filtered = DATA.slice();
+  var sortCol = 'vendor';
+  var sortDir = 1;
+  var currentId = null;   // ID of the item currently open in modal
+  var modalMode = 'view'; // 'view' | 'edit' | 'add'
+  var pendingDeleteId = null;
+  
+  /* ── Helpers ── */
+  function esc(s){return(s==null?'':String(s)).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
+  function toast(msg,type){var t=document.getElementById('toast');t.textContent=msg;t.className='toast show '+(type||'info');setTimeout(function(){t.className='toast'},3200)}
+  
+  // Deterministic ID from vendor+tool using a simple DJB2 hash. For initial
+  // data, IDs come from the server-generated SHA1. For new rows created in the
+  // UI, use this light-weight hash.
+  function genId(vendor, tool){
+    var key = ((vendor||'').trim().toLowerCase() + '|' + (tool||'').trim().toLowerCase());
+    var h = 5381;
+    for (var i=0;i<key.length;i++){ h = ((h<<5)+h) + key.charCodeAt(i); h = h & 0xffffffff; }
+    return 'ai_' + (h>>>0).toString(16).padStart(8,'0') + '_' + Date.now().toString(36).slice(-4);
+  }
+  
+  function statusClass(s){
+    var m = (s||'').toLowerCase();
+    if(m==='approved')return 'approved';
+    if(m==='not approved')return 'not-approved';
+    if(m==='under review')return 'under-review';
+    if(m==='under legal review')return 'under-legal-review';
+    if(m==='approved for poc')return 'approved-for-poc';
+    if(m==='approved (api via gasi/db)')return 'approved-api';
+    if(m==='poc')return 'poc';
+    if(m==='pilot')return 'pilot';
+    if(m==='business case/project based')return 'business-case';
+    return 'unknown';
+  }
+  function statusPill(s){return '<span class="status-pill '+statusClass(s)+'">'+esc(s||'—')+'</span>'}
+  
+  /* ── Dropdowns ── */
+  function fillStatusDropdown(){
+    var statuses = {};
+    for(var i=0;i<DATA.length;i++){ if(DATA[i].status) statuses[DATA[i].status]=1; }
+    var el = document.getElementById('f-status');
+    // Keep current selection if possible
+    var cur = el.value;
+    el.innerHTML = '<option value="">All Statuses</option>';
+    var list = Object.keys(statuses).sort();
+    for(var j=0;j<list.length;j++){
+      var o = document.createElement('option'); o.value=list[j]; o.textContent=list[j]; el.appendChild(o);
+    }
+    if(cur) el.value = cur;
+  }
+  
+  /* ── Filter ── */
+  function applyFilters(){
+    var q = (document.getElementById('f-search').value||'').trim().toLowerCase();
+    var s = document.getElementById('f-status').value;
+    filtered = DATA.filter(function(r){
+      if(s && r.status !== s) return false;
+      if(q){
+        var blob = ((r.vendor||'')+' '+(r.tool||'')+' '+(r.description||'')+' '+(r.note||'')).toLowerCase();
+        if(blob.indexOf(q) === -1) return false;
+      }
+      return true;
+    });
+    render();
+  }
+  
+  /* ── Sort ── */
+  function setSort(col){
+    if(sortCol===col) sortDir*=-1;
+    else{ sortCol=col; sortDir=1; }
+    render();
+  }
+  
+  function render(){
+    filtered.sort(function(a,b){
+      var av=(a[sortCol]||'').toLowerCase();
+      var bv=(b[sortCol]||'').toLowerCase();
+      if(av<bv)return -1*sortDir;
+      if(av>bv)return 1*sortDir;
+      return 0;
+    });
+    renderKPIs();
+    renderTable();
+  }
+  
+  /* ── KPIs (based on full DATA, not filtered, so numbers stay stable) ── */
+  function renderKPIs(){
+    var total=DATA.length, approved=0, notApproved=0, underReview=0;
+    for(var i=0;i<DATA.length;i++){
+      var s = DATA[i].status;
+      if(s === 'Approved' || s === 'Approved (API via GASI/DB)') approved++;
+      else if(s === 'Not Approved') notApproved++;
+      else if(s === 'Under Review' || s === 'Under Legal Review') underReview++;
+    }
+    document.getElementById('kpi-strip').innerHTML =
+      '<div class="kpi-card"><div class="kpi-label">Total AI Tools Evaluated</div><div class="kpi-num">'+total+'</div></div>'+
+      '<div class="kpi-card"><div class="kpi-label">Total Approved</div><div class="kpi-num">'+approved+'</div><div class="kpi-sub">Approved for use</div></div>'+
+      '<div class="kpi-card"><div class="kpi-label">Not Approved</div><div class="kpi-num">'+notApproved+'</div><div class="kpi-sub">Not approved for use</div></div>'+
+      '<div class="kpi-card"><div class="kpi-label">Under Review</div><div class="kpi-num">'+underReview+'</div><div class="kpi-sub">Pending governance review</div></div>';
+  }
+  
+  /* ── Table ── */
+  var COLS = [
+    {key:'vendor',label:'Vendor'},
+    {key:'tool',label:'Tool'},
+    {key:'description',label:'Description'},
+    {key:'status',label:'Status'},
+    {key:'note',label:'Note'}
+  ];
+  
+  function renderTable(){
+    var th='<tr>';
+    for(var c=0;c<COLS.length;c++){
+      var cls = sortCol===COLS[c].key ? ' sorted' : '';
+      var arrow = sortCol===COLS[c].key ? (sortDir===1?'\u25B2':'\u25BC') : '\u25B2';
+      th += '<th class="'+cls+'" onclick="setSort(\''+COLS[c].key+'\')">'+COLS[c].label+'<span class="sort-ic">'+arrow+'</span></th>';
+    }
+    th+='</tr>';
+    document.getElementById('table-head').innerHTML = th;
+  
+    if(filtered.length===0){
+      document.getElementById('table-body').innerHTML = '<tr><td colspan="5" class="no-results">No tools match the current filters.</td></tr>';
+      document.getElementById('table-count').textContent = '0 tools';
+      return;
+    }
+    var html='';
+    for(var i=0;i<filtered.length;i++){
+      var r = filtered[i];
+      html += '<tr onclick="openModal(\''+r.id+'\')">';
+      html += '<td><span class="td-vendor">'+esc(r.vendor)+'</span></td>';
+      html += '<td><span class="td-tool">'+esc(r.tool)+'</span></td>';
+      html += '<td><div class="td-desc">'+esc(r.description)+'</div></td>';
+      html += '<td>'+statusPill(r.status)+'</td>';
+      html += '<td><div class="td-note">'+(r.note?esc(r.note):'—')+'</div></td>';
+      html += '</tr>';
+    }
+    document.getElementById('table-body').innerHTML = html;
+    var totalTxt = filtered.length===DATA.length ? (DATA.length + ' tools') : (filtered.length + ' of ' + DATA.length + ' tools');
+    document.getElementById('table-count').textContent = totalTxt;
+  }
+  
+  /* ── MODAL: view mode ── */
+  function openModal(id){
+    var r = null;
+    for(var i=0;i<DATA.length;i++){ if(DATA[i].id===id){ r=DATA[i]; break; } }
+    if(!r) return;
+    currentId = id;
+    modalMode = 'view';
+    document.getElementById('modal-title').textContent = r.vendor + ' / ' + r.tool;
+    document.getElementById('modal-subid').textContent = 'ID: ' + r.id;
+    document.getElementById('v-vendor').textContent = r.vendor || '—';
+    document.getElementById('v-tool').textContent = r.tool || '—';
+    document.getElementById('v-status').innerHTML = statusPill(r.status);
+    var desc = document.getElementById('v-description');
+    if(r.description){ desc.textContent = r.description; desc.className = 'mf-val'; }
+    else { desc.textContent = 'No description provided'; desc.className = 'mf-val empty'; }
+    var note = document.getElementById('v-note');
+    if(r.note){ note.textContent = r.note; note.className = 'mf-val'; }
+    else { note.textContent = 'No note provided'; note.className = 'mf-val empty'; }
+    document.getElementById('modal-view').style.display = '';
+    document.getElementById('modal-edit').style.display = 'none';
+    document.getElementById('modal').classList.add('open');
+  }
+  
+  /* ── MODAL: edit existing ── */
+  function switchToEdit(){
+    var r = null;
+    for(var i=0;i<DATA.length;i++){ if(DATA[i].id===currentId){ r=DATA[i]; break; } }
+    if(!r) return;
+    modalMode = 'edit';
+    document.getElementById('e-vendor').value = r.vendor || '';
+    document.getElementById('e-tool').value = r.tool || '';
+    document.getElementById('e-status').value = r.status || 'Approved';
+    document.getElementById('e-description').value = r.description || '';
+    document.getElementById('e-note').value = r.note || '';
+    document.getElementById('modal-view').style.display = 'none';
+    document.getElementById('modal-edit').style.display = '';
+    document.getElementById('btn-edit').style.display = 'none';
+    document.getElementById('btn-save').style.display = '';
+    document.getElementById('btn-delete').style.display = '';
+    document.getElementById('btn-cancel').textContent = 'Cancel';
+  }
+  
+  /* ── MODAL: add new ── */
+  function openAddModal(){
+    currentId = null;
+    modalMode = 'add';
+    document.getElementById('modal-title').textContent = 'Add New Tool';
+    document.getElementById('modal-subid').textContent = 'New entry — ID will be generated on save';
+    document.getElementById('e-vendor').value = '';
+    document.getElementById('e-tool').value = '';
+    document.getElementById('e-status').value = 'Under Review';
+    document.getElementById('e-description').value = '';
+    document.getElementById('e-note').value = '';
+    document.getElementById('modal-view').style.display = 'none';
+    document.getElementById('modal-edit').style.display = '';
+    document.getElementById('btn-edit').style.display = 'none';
+    document.getElementById('btn-save').style.display = '';
+    document.getElementById('btn-delete').style.display = 'none';
+    document.getElementById('btn-cancel').textContent = 'Cancel';
+    document.getElementById('modal').classList.add('open');
+    setTimeout(function(){document.getElementById('e-vendor').focus()},80);
+  }
+  
+  function closeModal(){
+    document.getElementById('modal').classList.remove('open');
+    currentId = null;
+    modalMode = 'view';
+  }
+  
+  /* ====================================================================
+     FLOW POST — single endpoint, action discriminator
+     Payload shapes:
+       { action: "create", item: {id, vendor, tool, status, description, note} }
+       { action: "update", id: "ai_...", item: {...full updated fields} }
+       { action: "delete", id: "ai_..." }
+     Expected response: HTTP 2xx = success. Body ignored (optional echo).
+     ==================================================================== */
+  function postToFlow(payload){
+    // If FLOW_URL is still the placeholder, skip the network call but still
+    // update local state so the UI is testable before the flow is wired up.
+    if(!FLOW_URL || FLOW_URL.indexOf('__FLOW_URL') === 0){
+      return new Promise(function(resolve){
+        console.warn('FLOW_URL not configured — change applied locally only:', payload);
+        resolve({skipped:true});
+      });
+    }
+    return fetch(FLOW_URL, {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify(payload)
+    }).then(function(r){
+      if(!r.ok) throw new Error('Flow returned ' + r.status);
+      return r;
+    });
+  }
+  
+  /* ── Save handler (edit or add) ── */
+  function handleSave(){
+    var vendor = document.getElementById('e-vendor').value.trim();
+    var tool = document.getElementById('e-tool').value.trim();
+    var status = document.getElementById('e-status').value;
+    var description = document.getElementById('e-description').value.trim();
+    var note = document.getElementById('e-note').value.trim();
+  
+    if(!vendor){ toast('Vendor is required','err'); document.getElementById('e-vendor').focus(); return; }
+    if(!tool){ toast('Tool is required','err'); document.getElementById('e-tool').focus(); return; }
+  
+    var btn = document.getElementById('btn-save');
+    btn.disabled = true; btn.textContent = 'Saving...';
+  
+    if(modalMode === 'add'){
+      // Check for duplicate vendor+tool
+      var dupId = null;
+      for(var i=0;i<DATA.length;i++){
+        if((DATA[i].vendor||'').toLowerCase()===vendor.toLowerCase() &&
+           (DATA[i].tool||'').toLowerCase()===tool.toLowerCase()){ dupId=DATA[i].id; break; }
+      }
+      if(dupId){ toast('A tool with that vendor and name already exists','err'); btn.disabled=false; btn.textContent='Save'; return; }
+  
+      var newItem = {
+        id: genId(vendor, tool),
+        vendor: vendor, tool: tool, status: status, description: description, note: note
+      };
+      postToFlow({action:'create', item:newItem}).then(function(){
+        DATA.push(newItem);
+        fillStatusDropdown();
+        applyFilters();
+        toast('Added "'+vendor+' / '+tool+'"', 'ok');
+        closeModal();
+      }).catch(function(e){
+        toast('Failed to save: '+e.message, 'err');
+      }).finally(function(){
+        btn.disabled=false; btn.textContent='Save';
+      });
+    } else {
+      // edit existing
+      var idx = -1;
+      for(var j=0;j<DATA.length;j++){ if(DATA[j].id===currentId){ idx=j; break; } }
+      if(idx===-1){ toast('Item not found','err'); btn.disabled=false; btn.textContent='Save'; return; }
+      var updated = {
+        id: currentId,
+        vendor: vendor, tool: tool, status: status, description: description, note: note
+      };
+      postToFlow({action:'update', id:currentId, item:updated}).then(function(){
+        DATA[idx] = updated;
+        fillStatusDropdown();
+        applyFilters();
+        toast('Updated "'+vendor+' / '+tool+'"', 'ok');
+        closeModal();
+      }).catch(function(e){
+        toast('Failed to update: '+e.message, 'err');
+      }).finally(function(){
+        btn.disabled=false; btn.textContent='Save';
+      });
+    }
+  }
+  
+  /* ── Delete flow ── */
+  function requestDelete(){
+    if(!currentId) return;
+    var r = null;
+    for(var i=0;i<DATA.length;i++){ if(DATA[i].id===currentId){ r=DATA[i]; break; } }
+    if(!r) return;
+    pendingDeleteId = currentId;
+    document.getElementById('confirm-name').textContent = r.vendor + ' / ' + r.tool;
+    document.getElementById('confirm').classList.add('open');
+  }
+  
+  function confirmDelete(){
+    if(!pendingDeleteId){ document.getElementById('confirm').classList.remove('open'); return; }
+    var id = pendingDeleteId;
+    var btn = document.getElementById('confirm-yes');
+    btn.disabled = true; btn.textContent = 'Deleting...';
+    postToFlow({action:'delete', id:id}).then(function(){
+      DATA = DATA.filter(function(r){return r.id !== id});
+      fillStatusDropdown();
+      applyFilters();
+      toast('Tool deleted', 'ok');
+      document.getElementById('confirm').classList.remove('open');
+      closeModal();
+    }).catch(function(e){
+      toast('Failed to delete: '+e.message, 'err');
+    }).finally(function(){
+      btn.disabled=false; btn.textContent='Yes, Delete';
+      pendingDeleteId = null;
+    });
+  }
+  
+  /* ── Excel export ── */
+  function exportToExcel(){
+    // Export the current filtered view, preserving sort order.
+    var rows = filtered.map(function(r){
+      return {
+        ID: r.id,
+        Vendor: r.vendor,
+        Tool: r.tool,
+        Description: r.description,
+        Status: r.status,
+        Note: r.note
+      };
+    });
+    if(rows.length === 0){ toast('Nothing to export — filter yields 0 tools','err'); return; }
+    if(typeof XLSX === 'undefined'){ toast('Excel library not loaded — check network','err'); return; }
+    var ws = XLSX.utils.json_to_sheet(rows);
+    // Column widths
+    ws['!cols'] = [
+      {wch:20}, {wch:22}, {wch:28}, {wch:60}, {wch:20}, {wch:40}
+    ];
+    var wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'AI Inventory');
+    var d = new Date();
+    var stamp = d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+    XLSX.writeFile(wb, 'AI_Inventory_List_' + stamp + '.xlsx');
+    toast('Exported ' + rows.length + ' tools', 'ok');
+  }
+  
+  /* ── Boot ── */
+  function boot(){
+    fillStatusDropdown();
+    applyFilters();
+  
+    document.getElementById('f-search').addEventListener('input', applyFilters);
+    document.getElementById('f-status').addEventListener('change', applyFilters);
+    document.getElementById('btn-reset').addEventListener('click', function(){
+      document.getElementById('f-search').value='';
+      document.getElementById('f-status').value='';
+      applyFilters();
+    });
+  
+  
+    document.getElementById('modal').addEventListener('click', closeModal);
+    document.getElementById('modal-close').addEventListener('click', closeModal);
+  
+    document.addEventListener('keydown', function(e){
+      if(e.key === 'Escape'){ closeModal(); }
+    });
+  }
+  
+  boot();
+  
+  // mailto: fallback — if no desktop mail app opens, redirect to Outlook Web
+  document.addEventListener('click', function(e){
+    var link = e.target.closest('a[href^="mailto:"]');
+    if(!link) return;
+  
+    var email = link.href.replace('mailto:','').split('?')[0];
+  
+    // Give the OS 2.5s to open a mail app.
+    // Cancel if the page loses visibility (app took focus) or window blurs.
+    var timer = setTimeout(function(){
+      window.open(
+        'https://outlook.office.com/mail/deeplink/compose?to=' +
+        encodeURIComponent(email), '_blank');
+    }, 2500);
+  
+    function cancel(){
+      clearTimeout(timer);
+      document.removeEventListener('visibilitychange', onVis);
+      window.removeEventListener('blur', cancel);
+    }
+    function onVis(){ if(document.hidden) cancel(); }
+  
+    document.addEventListener('visibilitychange', onVis);
+    window.addEventListener('blur', cancel);
+  });
+  </script>
+  
+  
+  <input type="hidden" id="has-qtest-explorer-add-on">
+<!-- SPA shell integration (added for index.html) -->
+<style>html.in-spa-frame .pill-nav-inline{display:none}</style>
+<script>
+(function(){
+  if (window.self !== window.top) document.documentElement.classList.add('in-spa-frame');
+  function notifyHeight(){
+    try { parent.postMessage({type:'spa-resize', height:document.documentElement.scrollHeight}, '*'); } catch(e){}
+  }
+  notifyHeight();
+  window.addEventListener('load', notifyHeight);
+  window.addEventListener('resize', notifyHeight);
+  document.addEventListener('click', function(){ setTimeout(notifyHeight,250); setTimeout(notifyHeight,800); });
+  try { new MutationObserver(function(){ setTimeout(notifyHeight,100); }).observe(document.body,{childList:true,subtree:true,attributes:true}); } catch(e){}
+  setInterval(notifyHeight, 1500);
+})();
+</script>
+</body></html>

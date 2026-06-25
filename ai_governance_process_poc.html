@@ -1,0 +1,633 @@
+<html lang="en"><head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Governance Process | AI Governance Hub</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&amp;family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600&amp;display=swap" rel="stylesheet">
+    <style>
+    /* Ã¢â€â‚¬Ã¢â€â‚¬ V2 THEME SHELL (matches COE Hub) Ã¢â€â‚¬Ã¢â€â‚¬ */
+    :root {
+      /* Ã¢â€â‚¬Ã¢â€â‚¬ Pariveda brand palette Ã¢â€â‚¬Ã¢â€â‚¬
+         Navy #010F31 | Logo Blue #1C2C80 | Pariveda Indigo #1A57D6 | Vibrant Indigo #2C75FF
+         Platinum #E9EAEC | Pale Platinum #F7F8FC | Pale Blue #EBE9F5 | White #FFFFFF
+         Coral #F95353 | Orange #FF861E */
+      --midnight:#010F31; --bg:#F7F8FC; --card:#FFFFFF; --text:#101935;
+      --t2:#5A6072; --t3:#9CA0AB; --brd:#E9EAEC; --brd2:#C7C9D1;
+      --blue:#2C75FF; --purple:#1C2C80; --green:#1C2C80; --teal-coe:#2C75FF;
+      --amber:#FF861E; --mag:#F95353; --teal-cta:#2C75FF; --r:12px;
+      /* Brand-mapped accent scale */
+      --purple-orig:#1C2C80;
+      --eclipse:#101935; --haze:#F7F8FC;
+      --nebula:#010F31; --uv:#1A57D6;
+      --uv-90:#2C75FF; --uv-80:#4A88FF; --uv-60:#6FA0FF;
+      --uv-40:#9DBEFF; --uv-20:#C2D6FF;
+      --lilac:#C2D6FF; --lilac-90:#D0DEFF; --lilac-80:#DBE5FF;
+      --lilac-60:#E4EBFF; --lilac-40:#EBE9F5; --lilac-20:#F7F8FC;
+      --indigo:#010F31; --lunar:#1A57D6; --lunar-80:#2C75FF; --lunar-40:#6FA0FF;
+      --arctic:#C2D6FF; --arctic-60:#E4EBFF; --arctic-20:#EBF1FF;
+      --teal:#2C75FF; --teal-80:#5A92FF; --glacier:#C2D6FF;
+      --sunbeam:#FF861E; --sunbeam-60:#FFB570; --sunbeam-20:#FFE0C2;
+      --parchment:#FFF0E0;
+      --eclipse-20:#E9EAEC; --eclipse-60:#9CA0AB; --eclipse-80:#6A6E7A;
+    }
+    *{margin:0;padding:0;box-sizing:border-box}
+    body{font-family:'DM Sans',-apple-system,sans-serif;background:var(--bg);color:var(--text);line-height:1.6;font-size:16px}
+    h1,h2,h3,h4{font-family:'Outfit',sans-serif}
+    
+    /* Ã¢â€â‚¬Ã¢â€â‚¬ PILL NAV Ã¢â€â‚¬Ã¢â€â‚¬ */
+    .pill-links{display:flex;gap:0;flex-wrap:wrap;width:100%;justify-content:space-between}
+    .pn{
+      font-size:14px;font-weight:500;color:var(--t2);text-decoration:none;
+      padding:8px 16px;border-radius:100px;transition:all .2s;white-space:nowrap;
+      position:relative;
+    }
+    .pn:hover{color:var(--text);background:rgba(1,15,49,.04)}
+    .pn.active{color:var(--midnight);font-weight:600;background:rgba(1,15,49,.06)}
+    .pn::after{
+      content:'';position:absolute;bottom:0;left:50%;transform:translateX(-50%);
+      width:0;height:2px;background:var(--midnight);border-radius:2px;transition:width .25s;
+    }
+    .pn:hover::after,.pn.active::after{width:60%}
+    
+    /* Ã¢â€â‚¬Ã¢â€â‚¬ PILL NAV INLINE Ã¢â€â‚¬Ã¢â€â‚¬ */
+    .pill-nav-inline{
+      background:var(--card);border:1px solid var(--brd);border-radius:var(--r);
+      padding:12px 24px;margin-top:0;display:flex;align-items:center;
+      justify-content:space-between;box-shadow:0 1px 4px rgba(0,0,0,.04);
+      position:sticky;top:0;z-index:50;
+    }
+    
+    /* Ã¢â€â‚¬Ã¢â€â‚¬ CONTENT Ã¢â€â‚¬Ã¢â€â‚¬ */
+    .content{max-width:1080px;margin:0 auto;padding:0 40px}
+    
+    /* Ã¢â€â‚¬Ã¢â€â‚¬ HERO Ã¢â€â‚¬Ã¢â€â‚¬ */
+    .hero{margin:0;position:relative;overflow:hidden;border-radius:var(--r);margin-top:20px}
+    .hero-bg{position:absolute;inset:0;background-size:cover;background-position:center 42%}
+    .hero-bg::after{content:'';position:absolute;inset:0;background:#1C2C80}
+    .hero-inner{position:relative;z-index:2;padding:32px 40px 28px}
+    .hero h1{font-size:34px;font-weight:800;color:#fff;letter-spacing:-.4px;line-height:1.1}
+    .hero h1 span{display:block;font-weight:400;font-size:15px;letter-spacing:0;margin-bottom:8px;color:#fff;opacity:.7}
+    .hero p{font-size:16px;color:#fff;opacity:.85;max-width:500px;margin-top:12px;line-height:1.6}
+    
+    /* Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ Stacked Panel Layout Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ */
+    .content-wrapper{
+      background:var(--card);border:1px solid var(--brd);border-radius:var(--r);
+      padding:32px 36px;margin-top:20px;
+    }
+    .content-wrapper .panel{
+      background:none;border:none;border-radius:0;
+      padding:0;margin-top:0;box-shadow:none;
+      margin-bottom:32px;
+    }
+    .content-wrapper .panel:last-child{margin-bottom:0}
+    
+    .section-label{
+      font-family:'Outfit';font-size:15px;font-weight:700;text-transform:uppercase;
+      letter-spacing:1.5px;color:var(--midnight);margin:0 0 18px;
+      display:flex;align-items:center;gap:10px;
+    }
+    .section-label::after{content:'';flex:1;height:1px;background:var(--brd)}
+    
+    /* Ã¢â€â‚¬Ã¢â€â‚¬ Intro Text Ã¢â€â‚¬Ã¢â€â‚¬ */
+    .intro-text{font-size:16px;color:var(--t2);line-height:1.7}
+    .intro-text strong{color:var(--text);font-weight:600}
+    
+    /* Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢Â
+       PROCESS FLOW Ã¢â‚¬â€œ exact index.html styles
+       Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢Â */
+    
+    /* Process flow zone uses original font */
+    .pf-zone{font-family:'Segoe UI',sans-serif;color:var(--eclipse)}
+    
+    /* Dotted background overlay inside process zone */
+    .pf-zone::before{content:'';position:absolute;inset:0;z-index:0;pointer-events:none;opacity:.3;background-image:radial-gradient(circle,rgba(26,87,214,.06) 1px,transparent 1px);background-size:28px 28px;border-radius:var(--r)}
+    .pf-zone{position:relative}
+    .pf-zone>*{position:relative;z-index:1}
+    
+    /* Progress bar */
+    .progress-wrap{position:relative;height:5px;background:var(--lilac-40);border-radius:5px;margin-bottom:18px;overflow:hidden;animation:si .55s cubic-bezier(.22,1,.36,1) .18s both}
+    .progress-bar{position:absolute;top:0;left:0;height:100%;width:0%;background:linear-gradient(90deg,var(--uv),var(--lunar),var(--teal));border-radius:5px;transition:width .8s cubic-bezier(.22,1,.36,1)}
+    
+    /* Step row / grid */
+    .step-row{margin-bottom:12px;animation:si .55s cubic-bezier(.22,1,.36,1) .22s both}
+    .grid-row{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+    
+    /* Cards Ã¢â‚¬â€ exact original */
+    .card{background:#fff;border:1.5px solid var(--eclipse-20);border-radius:10px;padding:18px 20px 42px;cursor:pointer;position:relative;transition:all .4s cubic-bezier(.22,1,.36,1);overflow:hidden}
+    .card::after{content:'Click to expand';position:absolute;bottom:0;left:0;right:0;text-align:center;font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--uv-40);background:var(--lilac-20);padding:5px 0;border-top:1px solid var(--lilac-60);transition:all .3s ease}
+    .card:hover::after{color:var(--uv);background:var(--lilac-40)}
+    .card:hover:not(.sce){transform:translateY(-3px);border-color:var(--uv-40);box-shadow:0 6px 20px rgba(26,87,214,.12)}
+    .card.sce{border-color:var(--uv);box-shadow:0 8px 32px rgba(26,87,214,.18);transform:translateY(-2px)}
+    .card.sce::after{content:'Click to collapse';color:var(--uv);background:var(--lilac-20);border-top-color:var(--uv-20)}
+    
+    /* Step number Ã¢â‚¬â€ exact original */
+    .sn{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#fff;background:var(--uv-40);transition:all .4s ease;margin-bottom:8px}
+    .sn-wide{width:32px;font-size:10px}
+    .sce .sn,.scp .sn{background:var(--uv)}
+    .scp .sn{box-shadow:0 0 0 6px rgba(26,87,214,.14)}
+    
+    /* Card title & subtitle */
+    .st{font-size:13.5px;font-weight:700;color:var(--uv);margin-bottom:6px;line-height:1.3}
+    .ss{font-size:11.5px;color:var(--eclipse-80);line-height:1.55}
+    
+    /* Card badge Ã¢â‚¬â€ exact original (solid purple) */
+    .card-badge{display:inline-block;font-size:8px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;padding:3px 8px;border-radius:3px;margin-top:8px}
+    .badge-required{background:var(--uv);color:#fff}
+    
+    /* Chevron */
+    .chv{display:none}
+    
+    /* Expand panel Ã¢â‚¬â€ exact original */
+    .expand-panel{
+      max-height:0;overflow:hidden;
+      transition:max-height .5s cubic-bezier(.22,1,.36,1),opacity .4s ease,padding .4s ease,margin .4s ease;
+      opacity:0;background:#fff;border:1.5px solid transparent;border-radius:10px;padding:0 22px;margin-top:0;
+    }
+    .expand-panel.open{
+      max-height:900px;opacity:1;padding:18px 22px;margin-top:10px;
+      border-color:var(--teal);box-shadow:0 4px 24px rgba(44,117,255,.12);
+    }
+    .ep-head{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+    .ep-num{width:24px;height:24px;border-radius:50%;background:#1C2C80;color:#fff;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0}
+    .ep-num-wide{width:auto;min-width:24px;padding:0 6px;border-radius:12px}
+    .ep-title{font-size:14px;font-weight:700;color:var(--uv);line-height:1.3}
+    .ep-body{font-size:12.5px;color:var(--eclipse);line-height:1.7;padding-left:34px}
+    .ep-body a{color:var(--lunar);font-weight:600;text-decoration:underline;transition:color .2s}
+    .ep-body a:hover{color:var(--uv-60)}
+    .ep-body .highlight{background:var(--arctic-20);border-left:3px solid var(--teal);padding:8px 14px;border-radius:0 6px 6px 0;margin:10px 0;font-weight:600;color:var(--eclipse);line-height:1.65}
+    .ep-body .prereq{background:var(--parchment);border-left:3px solid var(--sunbeam);padding:8px 14px;border-radius:0 6px 6px 0;margin:10px 0;color:var(--eclipse);line-height:1.65;font-size:11.5px}
+    .ep-body .prereq b{color:var(--eclipse)}
+    .ep-body .cta-box{background:var(--arctic-20);border:1.5px solid var(--teal);border-radius:8px;padding:10px 14px;margin:10px 0;text-align:center}
+    .ep-body .cta-box .cta-title{font-size:13px;font-weight:700;color:var(--teal);margin-bottom:3px}
+    .ep-body .cta-box .cta-sub{font-size:11px;color:var(--eclipse-80)}
+    .ep-body .note{font-size:11.5px;color:var(--eclipse-80);font-style:italic;margin-top:8px}
+    
+    /* Action steps Ã¢â‚¬â€ exact original */
+    .action-steps{list-style:none;padding:0;margin:12px 0 0}
+    .action-steps li{display:flex;gap:10px;align-items:flex-start;margin-bottom:14px}
+    .action-steps li:last-child{margin-bottom:0}
+    .step-icon{width:16px;color:var(--teal);display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700;flex-shrink:0;margin-top:1px;line-height:1}
+    .step-text{font-size:12.5px;color:var(--eclipse);line-height:1.65}
+    .step-text b{color:var(--eclipse)}
+    .step-text a{color:var(--lunar);font-weight:600;text-decoration:underline}
+    .step-text .sub{font-size:11.5px;color:var(--eclipse);font-style:italic;display:block;margin-top:3px}
+    .step-text .sub-sm{font-size:10px;color:var(--eclipse);font-style:italic;display:block;margin-top:3px}
+    .step-closing{margin-top:14px;padding:12px 14px;border-radius:8px;background:var(--arctic-20);border:1.5px solid var(--teal);line-height:1.6}
+    .step-closing .sc-label{font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--teal);margin-bottom:4px}
+    .step-closing .sc-body{font-size:12px;color:var(--eclipse)}
+    .step-closing .sc-body a{color:var(--lunar);font-weight:600;text-decoration:underline}
+    .green-step-icon{color:#1C2C80!important}
+    
+    /* Ongoing green card Ã¢â‚¬â€ exact original */
+    .ongoing-wrap{margin-top:12px;animation:si .55s cubic-bezier(.22,1,.36,1) .36s both}
+    .ongoing-inner{background:#EBF1FF;border:1px solid #C2D6FF;border-radius:10px;padding:12px 14px}
+    .ongoing-label{font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#1C2C80;margin-bottom:8px;display:flex;align-items:center;gap:5px}
+    .ongoing-dot{width:6px;height:6px;border-radius:50%;background:#1C2C80;display:inline-block;animation:pulse-dot 2s ease-in-out infinite}
+    @keyframes pulse-dot{0%,100%{opacity:1}50%{opacity:.4}}
+    .green-card{border-color:#C2D6FF!important}
+    .green-card:hover:not(.sce){border-color:rgba(28,44,128,.4)!important;box-shadow:0 6px 20px rgba(28,44,128,.1)!important}
+    .green-card.sce{border-color:#1C2C80!important;box-shadow:0 8px 32px rgba(28,44,128,.15)!important}
+    .green-sn{background:#C2D6FF!important}
+    .green-card.sce .green-sn,.green-card.scp .green-sn{background:#1C2C80!important}
+    .green-card.scp .green-sn{box-shadow:0 0 0 6px rgba(28,44,128,.12)!important}
+    .green-st{color:#1C2C80!important}
+    .green-card.sce .chv{color:#1C2C80!important}
+    .ob{position:absolute;top:-1px;right:-1px;background:#1C2C80;color:#fff;font-size:8px;font-weight:700;letter-spacing:.8px;padding:2px 7px;border-radius:0 9px 0 6px;text-transform:uppercase}
+    .green-panel{background:#EBF1FF!important}
+    .green-panel.open{border-color:#1C2C80!important}
+    .green-num{background:#1C2C80!important}
+    .green-title{color:#1C2C80!important}
+    .green-panel .ep-body a{color:#1C2C80}
+    
+    /* Engage footer Ã¢â‚¬â€ exact original */
+    .engage-strip{margin-top:14px;background:var(--purple-orig);border-radius:8px;padding:12px 18px;display:flex;gap:0;box-shadow:0 6px 30px rgba(28,44,128,.22);animation:si .6s cubic-bezier(.22,1,.36,1) .35s both}
+    .engage-label{
+      writing-mode:vertical-lr;text-orientation:mixed;transform:rotate(180deg);
+      font-weight:700;font-size:9px;letter-spacing:2px;color:rgba(255,255,255,.35);
+      text-transform:uppercase;padding-right:12px;border-right:1px solid rgba(255,255,255,.1);
+      display:flex;align-items:center;justify-content:center;white-space:nowrap;flex-shrink:0;
+    }
+    .engage-items{display:flex;gap:6px;flex:1;padding-left:12px}
+    .engage-item{flex:1;padding:8px 10px;border-radius:6px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.04);transition:all .3s ease}
+    .engage-item:hover{background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.12)}
+    .engage-item-title{font-size:13px;font-weight:700;color:#fff;margin-bottom:4px;line-height:1.3}
+    .engage-item-body{font-size:13px;color:rgba(255,255,255,.75);line-height:1.55}
+    .engage-item-body a{color:#fff;font-weight:600;text-decoration:underline}
+    .ehl{color:#fff;font-weight:600;text-decoration:underline}
+    
+    /* Animations Ã¢â‚¬â€ exact original */
+    @keyframes si{from{opacity:0;transform:translateY(-16px)}to{opacity:1;transform:translateY(0)}}
+    
+    /* Ã¢â€â‚¬Ã¢â€â‚¬ Quick Links Ã¢â€â‚¬Ã¢â€â‚¬ */
+    .quick-link{
+      display:flex;align-items:center;gap:12px;padding:14px 20px;
+      background:var(--card);border:1px solid var(--brd);border-radius:var(--r);
+      text-decoration:none;color:var(--text);flex:1;min-width:260px;
+      transition:box-shadow .2s,border-color .2s;
+    }
+    .quick-link:hover{border-color:var(--teal-cta);box-shadow:0 2px 8px rgba(44,117,255,.14)}
+    .quick-link-icon{
+      width:40px;height:40px;border-radius:10px;
+      display:flex;align-items:center;justify-content:center;flex-shrink:0;
+    }
+    .quick-link-text{flex:1}
+    .quick-link-text .ql-title{font-weight:600;font-size:15px;font-family:'Outfit';color:var(--midnight)}
+    .quick-link-text .ql-desc{font-size:15px;color:var(--t2);margin-top:2px;line-height:1.5}
+    
+    /* Ã¢â€â‚¬Ã¢â€â‚¬ CTA Ã¢â€â‚¬Ã¢â€â‚¬ */
+    .cta{
+      background:var(--card);border:1px solid var(--brd);border-radius:var(--r);
+      margin:16px 0 28px;padding:22px 28px;display:flex;align-items:center;
+      justify-content:space-between;gap:20px;
+    }
+    .cta h3{font-size:19px;font-weight:700}
+    .cta p{font-size:16px;color:var(--t2);margin-top:2px}
+    .cta-btns{display:flex;gap:10px;flex-shrink:0}
+    .btn{
+      display:inline-flex;align-items:center;gap:6px;padding:10px 22px;border-radius:var(--r);
+      font-family:'Outfit';font-size:13px;font-weight:600;text-decoration:none;border:none;
+      cursor:pointer;transition:all .2s;
+    }
+    .btn-f{background:var(--midnight);color:#fff}
+    .btn-f:hover{background:#1C2C80;box-shadow:0 4px 16px rgba(1,15,49,.25)}
+    .btn-o{background:transparent;color:var(--midnight);border:1.5px solid var(--brd2)}
+    .btn-o:hover{border-color:var(--midnight);background:rgba(1,15,49,.03)}
+    
+    /* Ã¢â€â‚¬Ã¢â€â‚¬ RESPONSIVE Ã¢â€â‚¬Ã¢â€â‚¬ */
+    @media(max-width:1024px){
+      .pill-nav-inline{flex-direction:column;gap:10px;align-items:flex-start}
+      .pill-links{overflow-x:auto;flex-wrap:nowrap;-webkit-overflow-scrolling:touch}
+    }
+    @media(max-width:900px){
+      .grid-row{grid-template-columns:repeat(2,1fr);gap:8px}
+      .card{padding:14px 16px 28px}
+      .expand-panel.open{max-height:1200px}
+      .ep-body{padding-left:0}
+    }
+    @media(max-width:640px){
+      .content{padding:0 16px}
+      .hero{margin:0}
+      .pill-links{gap:2px}.pn{padding:6px 12px;font-size:10px}
+      .hero-inner{padding:32px 24px 28px}.hero h1{font-size:26px}
+      .content-wrapper{padding:24px 20px;margin-top:12px}
+      .content-wrapper .panel{padding:0;margin-top:0;margin-bottom:24px}
+      .grid-row{grid-template-columns:1fr;gap:8px}
+      .sn{width:24px;height:24px;font-size:10px}
+      .st{font-size:12px}
+      .ss{font-size:10.5px}
+      .expand-panel.open{max-height:1400px}
+      .ep-body{padding-left:0;font-size:11.5px}
+      .engage-strip{flex-direction:column;padding:14px}
+      .engage-label{writing-mode:horizontal-tb;transform:none;padding:0 0 8px;border-right:none;border-bottom:1px solid rgba(255,255,255,.1);margin-bottom:8px;font-size:11px;letter-spacing:1.5px}
+      .engage-items{flex-direction:column;gap:8px;padding-left:0}
+      .engage-item{padding:10px}
+      .engage-item-title{font-size:10px}
+      .engage-item-body{font-size:9px}
+      .cta{flex-direction:column;text-align:center}.cta-btns{justify-content:center}
+    }
+    </style>
+    </head>
+    <body>
+    
+    <div class="content">
+    
+      <!-- HERO -->
+      <div class="hero">
+        <div class="hero-bg" style="background-image:url('');background-position:center 42%"></div>
+        <div class="hero-inner">
+          <h1><span>AI Governance &amp; Enablement</span>AI Governance Process</h1>
+          <p>Follow the steps to assess risk, complete governance requirements, and launch your AI solution responsibly.</p>
+        </div>
+      </div>
+    
+      <!-- PILL NAV -->
+      <div class="pill-nav-inline">
+        <div class="pill-links">
+          <a class="pn" href="" target="_blank">Home</a>
+          <a class="pn" href="" target="_blank">Our Team</a>
+          <a class="pn active" href="" target="_blank">AI Governance Process</a>
+          <a class="pn" href="risk_profile_reference.html">Risk Profile Reference</a>
+          <a class="pn" href="ai_solution_inventory_poc.html">AI Solution Catalog</a>
+          <a class="pn" href="ai_inventory_list_poc.html">AI Inventory List</a>
+          <a class="pn" href="" target="_blank">FAQs</a>
+        </div>
+      </div>
+    
+      <!-- MAIN CONTENT -->
+      <div class="content-wrapper">
+    
+        <!-- Intro -->
+        <div class="panel">
+          <div class="section-label">Overview</div>
+          <p class="intro-text">
+            The AI Governance Process ensures every AI solution is evaluated for risk, aligned with policy, and supported throughout its lifecycle. The AI Risk Profile is integrated into the intake form you complete when onboarding a new AI solution. <strong>Click any step below</strong> to view details, requirements, and next actions.
+          </p>
+        </div>
+    
+        <!-- Process Flow -->
+        <div class="panel pf-zone">
+          <div class="section-label">Governance Process</div>
+    
+          <!-- Instruction line (from original header) -->
+          <p style="font-size:13px;color:var(--eclipse);margin-bottom:14px;font-weight:600;line-height:1.5">Click any step to view details, requirements, and next actions.</p>
+    
+          <!-- Progress Bar -->
+          <div class="progress-wrap">
+            <div class="progress-bar" id="pbar"></div>
+          </div>
+    
+          <!-- Steps 1Ã¢â‚¬â€œ3 -->
+          <div id="steps-container"><div class="step-row"><div class="grid-row"><div class="card scp" data-id="step-1"><div class="sn">1</div><div class="st">Complete the AI Intake Form</div><div class="ss">As part of the intake form, assess your solution’s risk level, determine safeguards, and establish your governance path.</div><div class="card-badge badge-required">Required for all solutions</div><div class="chv">▾</div></div><div class="card" data-id="step-2a"><div class="sn sn-wide">2a</div><div class="st">Low Risk Path</div><div class="ss">AI Governance will review your risk assessment and advise on next steps if necessary.</div><div class="chv">▾</div></div><div class="card" data-id="step-2b"><div class="sn sn-wide">2b</div><div class="st">Moderate / High Risk Path</div><div class="ss">AI Governance will review your assessment, schedule a review session, and guide you through the process.</div><div class="chv">▾</div></div><div class="card" data-id="step-3"><div class="sn">3</div><div class="st">Ongoing Governance Engagement</div><div class="ss">AI Governance will evaluate and monitor your solution on an ongoing basis.</div><div class="chv">▾</div></div></div><div class="expand-panel" id="panel-main"><div class="ep-head"><div class="ep-num" id="pm-num"></div><div class="ep-title" id="pm-title"></div></div><div class="ep-body" id="pm-body"></div></div></div></div>
+    
+          <!-- Step 4: Ongoing Best Practices (green) -->
+          <div class="ongoing-wrap" id="ongoing-section">
+            <div class="ongoing-inner">
+              <div class="ongoing-label"><span class="ongoing-dot"></span> Ongoing</div>
+              <div class="ep-head" style="margin-bottom:10px">
+                <div class="ep-num green-num">4</div>
+                <div class="ep-title green-title">Best Practices &amp; Recommendations</div>
+                <div class="ob" style="position:static;border-radius:4px;margin-left:auto">ONGOING</div>
+              </div>
+              <div class="ep-body">
+                <ul class="action-steps">
+                  <li><div class="step-icon green-step-icon">›</div><div class="step-text"><b>Refer to Templates, Standards, and Training.</b> Use established resources to support your solution throughout its lifecycle.</div></li>
+                  <li><div class="step-icon green-step-icon">›</div><div class="step-text"><b>Validate Performance Over Time.</b> Regular evaluation helps ensure your solution continues to behave as expected as models, prompts, and use cases evolve.</div></li>
+                  <li><div class="step-icon green-step-icon">›</div><div class="step-text"><b>Address Hallucinations and Output Drift.</b> Ongoing attention helps maintain reliable, trustworthy outputs, including the use of validated responses and approved knowledge sources.</div></li>
+                </ul>
+                <div class="step-closing" style="background:#E4EBFF;border-color:#1C2C80">
+                  <div class="sc-label" style="color:#1C2C80">Remember</div>
+                  <div class="sc-body">Re-engage AI Governance whenever your solution’s risk profile changes. Monitor for drift, bias, misuse, and failures on an ongoing basis.</div>
+                </div>
+              </div>
+            </div>
+          </div>
+    
+          <!-- How to Engage strip -->
+          <div class="engage-strip">
+            <div class="engage-label">How to Engage</div>
+            <div class="engage-items">
+              <div class="engage-item">
+                <div class="engage-item-title">Start with the Intake Form</div>
+                <div class="engage-item-body">The AI Risk Profile is built into the intake form process. Use the <a href="" target="_blank" rel="noopener">AI Governance Hub</a> to access risk assessments, the AI Solution Catalog, templates, and other AI Governance resources.</div>
+              </div>
+              <div class="engage-item">
+                <div class="engage-item-title">Reach Out Early for Trials, POCs, or New AI Ideas</div>
+                <div class="engage-item-body">Contact the AI Governance team as soon as you begin considering a new AI solution.</div>
+              </div>
+              <div class="engage-item">
+                <div class="engage-item-title">Connect with Us</div>
+                <div class="engage-item-body">Email <span class="ehl">AIGovernance<span>@</span>parivedasolutions.com</span></div>
+              </div>
+            </div>
+          </div>
+    
+        </div>
+    
+        <!-- Quick Links -->
+        <div class="panel">
+          <div class="section-label">Quick Links</div>
+          <div style="display:flex;flex-wrap:wrap;gap:12px">
+            <a class="quick-link" href="" target="_blank">
+              <div class="quick-link-icon" style="background:#EBF1FF">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--blue)" stroke-width="1.8"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>
+              </div>
+              <div class="quick-link-text">
+                <div class="ql-title">AI Risk Assessment Standard</div>
+                <div class="ql-desc">Detailed guidance on risk evaluation, compliance steps, and observability requirements.</div>
+              </div>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--t3)" stroke-width="2" style="flex-shrink:0;margin-left:auto"><path d="M7 17l9.2-9.2M17 17V7H7"></path></svg>
+            </a>
+            <a class="quick-link" href="" target="_blank">
+              <div class="quick-link-icon" style="background:#EBF1FF">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--teal-cta)" stroke-width="1.8"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+              </div>
+              <div class="quick-link-text">
+                <div class="ql-title">AI Policy</div>
+                <div class="ql-desc">Governance, Risk, and Compliance — AI Policy</div>
+              </div>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--t3)" stroke-width="2" style="flex-shrink:0;margin-left:auto"><path d="M7 17l9.2-9.2M17 17V7H7"></path></svg>
+            </a>
+          </div>
+        </div>
+    
+      </div><!-- END CONTENT WRAPPER -->
+    
+      <!-- CTA BAR -->
+      <div class="cta">
+        <div>
+          <h3>Ready to get started?</h3>
+          <p>Complete the AI Intake Form to begin your governance journey.</p>
+        </div>
+        <div class="cta-btns">
+          <a href="ai-risk-value-calculator.html" class="btn btn-f">AI Intake Form →</a>
+          <a href="" class="btn btn-o">Contact Governance Team</a>
+        </div>
+      </div>
+    
+    </div>
+    
+    <script>
+    
+    var STEPS=[
+      {
+        n:1,
+        t:"Complete the AI Intake Form",
+        s:"As part of the intake form, assess your solution\u2019s risk level, determine safeguards, and establish your governance path.",
+        badge:{text:"Required for all solutions",cls:"badge-required"},
+        d:'<div class="prereq"><b>Before you begin:</b> If your AI solution uses a <b>third\u2011party vendor or external tool</b> (including GenAI, LLMs, copilots, agents, ML, or automated decisioning), make sure it has gone through the <b>standard vendor onboarding and procurement process</b> before submitting this request.</div>'
+         +'<ul class="action-steps">'
+         +'<li><div class="step-icon">\u203a</div><div class="step-text">Complete the <a href="ai-risk-value-calculator.html" rel="noopener">AI Intake Form</a>, which includes the AI Risk Profile. This establishes your risk level and whether additional governance engagement is necessary.</div></li>'
+         +'<li><div class="step-icon">\u203a</div><div class="step-text"><b>Low Risk:</b> Governance engagement may not be required at this time. Standard safeguards and testing expectations apply. <a href="" target="_blank" rel="noopener">Learn more here</a>.</div></li>'
+         +'<li><div class="step-icon">\u203a</div><div class="step-text"><b>Moderate / High Risk</b> (i.e., solutions that are <b>customer-facing</b>, involve <b>sensitive data</b>, or are <b>autonomous</b>): <b>AI Governance engagement is required.</b></div></li>'
+         +'</ul>'
+         +'<div class="highlight"><b>Not ready to submit?</b> If you\u2019d like to explore the AI Risk Profile on your own to get a baseline understanding of your solution\u2019s risk level before formally submitting, you can do so <a href="" target="_blank" rel="noopener">here</a>.</div>'
+         +'<div class="step-closing"><div class="sc-label">What\u2019s Next</div><div class="sc-body">Based on your AI Risk Profile outcome, proceed to <b>Step 2a</b> (Low Risk) or <b>Step 2b</b> (Moderate / High Risk) for your next actions.</div></div>'
+      },
+      {
+        n:"2a",
+        t:"Low Risk Path",
+        s:"AI Governance will review your risk assessment and advise on next steps if necessary.",
+        d:'<ul class="action-steps">'
+         +'<li><div class="step-icon">\u203a</div><div class="step-text">AI Governance will review your submission. If additional engagement is needed, we\u2019ll reach out with next steps.</div></li>'
+         +'<li><div class="step-icon">\u203a</div><div class="step-text"><b><a href="" target="_blank" rel="noopener">AI Delivery Readiness Questionnaire</a>:</b> Fill this out as your solution takes shape to ensure alignment on delivery considerations.</div></li>'
+         +'<li><div class="step-icon">\u203a</div><div class="step-text">If your solution\u2019s risk profile changes or you observe drift, bias, misuse, or unexpected failures, reach out to AI Governance.<span class="sub"><b>Reassess at key milestones: during development, Dev to UAT, UAT, and before go-live.</b></span></div></li>'
+         +'</ul>'
+         +'<div class="step-closing"><div class="sc-label">What\u2019s Next</div><div class="sc-body">Review <b>Best Practices &amp; Recommendations</b> in <b>Step 4</b>.</div></div>'
+      },
+      {
+        n:"2b",
+        t:"Moderate / High Risk Path",
+        s:"AI Governance will review your assessment, schedule a review session, and guide you through the process.",
+        d:'<ul class="action-steps">'
+         +'<li><div class="step-icon">\u203a</div><div class="step-text">Upon receiving your AI Risk Profile, the AI Governance team will connect with you directly to gather project details before convening a cross-functional AI Risk Review Board, if required.</div></li>'
+         +'</ul>'
+         +'<div class="highlight"><b>Come Prepared With</b></div>'
+         +'<ul class="action-steps">'
+         +'<li><div class="step-icon">\u203a</div><div class="step-text"><b>Your Use Case Details:</b> What the solution does, who owns it, and your timeline.</div></li>'
+         +'<li><div class="step-icon">\u203a</div><div class="step-text"><b><a href="" target="_blank" rel="noopener">AI Delivery Readiness Questionnaire</a>:</b> Fill this out as your solution takes shape to ensure alignment on delivery considerations.</div></li>'
+         +'<li><div class="step-icon">\u203a</div><div class="step-text"><b>Performance &amp; Monitoring Plan:</b> How you\u2019ll know if your solution is working as expected and who to contact if it\u2019s not.</div></li>'
+         +'<li><div class="step-icon">\u203a</div><div class="step-text"><b>Quality &amp; Safety Testing Results:</b> How you\u2019ve tested for errors, misuse, or unexpected behavior.</div></li>'
+         +'<li><div class="step-icon">\u203a</div><div class="step-text"><b>Response &amp; Escalation Plan:</b> Who to notify and what to do if an issue arises.</div></li>'
+         +'</ul>'
+         +'<div class="highlight"><b>What to Expect at the AI Risk Review Board</b></div>'
+         +'<ul class="action-steps">'
+         +'<li><div class="step-icon">\u203a</div><div class="step-text"><b>Solution &amp; Risk Evaluation:</b> A cross-functional review forum with representatives from Security, Risk, Legal, Compliance, and relevant VP leadership to ensure all AI risks are understood and approved before your solution moves forward.</div></li>'
+         +'<li><div class="step-icon">\u203a</div><div class="step-text"><b>AI Risk Readiness Report:</b> Following the review, a report will be delivered that includes a mitigation summary, identified risks, and required actions.</div></li>'
+         +'</ul>'
+         +'<div class="step-closing"><div class="sc-label">What\u2019s Next</div><div class="sc-body">The AI Governance team will reach out to review your solution\u2019s details and cover next steps.</div></div>'
+      },
+      {
+        n:3,
+        t:"Ongoing Governance Engagement",
+        s:"AI Governance will evaluate and monitor your solution on an ongoing basis.",
+        d:'<ul class="action-steps">'
+         +'<li><div class="step-icon">\u203a</div><div class="step-text">AI Governance will evaluate, monitor, and reassess the health and compliance of any deployed AI solution on an ongoing basis.</div></li>'
+         +'<li><div class="step-icon">\u203a</div><div class="step-text">Expect periodic check-ins, reviews, and updated guidance as AI continues to evolve.</div></li>'
+         +'</ul>'
+         +'<div class="step-closing"><div class="sc-label">Keep in Mind</div><div class="sc-body">As the AI landscape evolves, the company will continue to adapt its governance controls accordingly. See <b>Step 4</b> for best practices after deployment.</div></div>'
+      }
+    ];
+    
+    var expandedId=null;
+    var pulseTimer=null;
+    
+    function mkcard(step){
+      var badge=step.badge?'<div class="card-badge '+step.badge.cls+'">'+step.badge.text+'</div>':'';
+      var snCls=String(step.n).length>1?'sn sn-wide':'sn';
+      return '<div class="card" data-id="step-'+step.n+'">'
+        +'<div class="'+snCls+'">'+step.n+'</div>'
+        +'<div class="st">'+step.t+'</div>'
+        +'<div class="ss">'+step.s+'</div>'
+        +badge
+        +'<div class="chv">&#9662;</div>'
+        +'</div>';
+    }
+    
+    function render(){
+      var container=document.getElementById('steps-container');
+      var h='<div class="step-row"><div class="grid-row">';
+      for(var i=0;i<STEPS.length;i++){
+        h+=mkcard(STEPS[i]);
+      }
+      h+='</div>';
+      h+='<div class="expand-panel" id="panel-main">'
+        +'<div class="ep-head"><div class="ep-num" id="pm-num"></div><div class="ep-title" id="pm-title"></div></div>'
+        +'<div class="ep-body" id="pm-body"></div>'
+        +'</div>';
+      h+='</div>';
+      container.innerHTML=h;
+    }
+    
+    function closeAll(){
+      var cards=document.querySelectorAll('.card');
+      for(var i=0;i<cards.length;i++) cards[i].classList.remove('sce');
+      var pm=document.getElementById('panel-main');
+      if(pm) pm.classList.remove('open');
+    }
+    
+    function tog(id){
+      var wasExpanded=expandedId===id;
+      closeAll();
+      if(!wasExpanded){
+        expandedId=id;
+        var stepId=id.replace('step-','');
+        var c=document.querySelector('.card[data-id="'+id+'"]');
+        if(c) c.classList.add('sce');
+        var idx=-1;
+        for(var i=0;i<STEPS.length;i++){if(String(STEPS[i].n)===stepId){idx=i;break;}}
+        if(idx>=0){
+          var step=STEPS[idx];
+          document.getElementById('pm-num').textContent=step.n;
+          document.getElementById('pm-num').className=String(step.n).length>1?'ep-num ep-num-wide':'ep-num';
+          document.getElementById('pm-title').textContent=step.t;
+          document.getElementById('pm-body').innerHTML=step.d;
+          document.getElementById('panel-main').classList.add('open');
+          document.getElementById('pbar').style.width=(((idx+1)/STEPS.length)*100)+'%';
+        }
+      }else{
+        expandedId=null;
+        document.getElementById('pbar').style.width='0%';
+      }
+    }
+    
+    document.addEventListener('click',function(ev){
+      if(ev.target.closest('a')) return;
+      var c=ev.target.closest('.card');
+      if(c){var id=c.getAttribute('data-id');if(id)tog(id);}
+    });
+    
+    function startPulse(){
+      if(pulseTimer)clearInterval(pulseTimer);
+      var ids=[];
+      for(var i=0;i<STEPS.length;i++) ids.push('step-'+STEPS[i].n);
+      var idx=0;
+      pulseTimer=setInterval(function(){
+        if(expandedId) return;
+        var cards=document.querySelectorAll('.card');
+        for(var i=0;i<cards.length;i++) cards[i].classList.remove('scp');
+        var c=document.querySelector('.card[data-id="'+ids[idx%ids.length]+'"]');
+        if(c) c.classList.add('scp');
+        idx++;
+      },2400);
+    }
+    
+    render();
+    startPulse();
+    
+    /* iframe resize for SharePoint embedding */
+    function resizeNotify(){
+      var h=document.documentElement.scrollHeight;
+      window.parent.postMessage({type:'iframe-resize',height:h},'*');
+      window.parent.postMessage({type:'resize',height:h},'*');
+    }
+    resizeNotify();
+    window.addEventListener('click',function(){setTimeout(resizeNotify,500);setTimeout(resizeNotify,1000);});
+    new MutationObserver(function(){setTimeout(resizeNotify,100);}).observe(document.body,{childList:true,subtree:true,attributes:true});
+    setInterval(resizeNotify,1500);
+    </script>
+    <script>
+    // mailto: fallback — if no desktop mail app opens, redirect to Outlook Web
+    document.addEventListener('click', function(e){
+      var link = e.target.closest('a[href^="mailto:"]');
+      if(!link) return;
+    
+      var email = link.href.replace('mailto:','').split('?')[0];
+    
+      var timer = setTimeout(function(){
+        window.open(
+          'https://outlook.office.com/mail/deeplink/compose?to=' +
+          encodeURIComponent(email), '_blank');
+      }, 2500);
+    
+      function cancel(){
+        clearTimeout(timer);
+        document.removeEventListener('visibilitychange', onVis);
+        window.removeEventListener('blur', cancel);
+      }
+      function onVis(){ if(document.hidden) cancel(); }
+    
+      document.addEventListener('visibilitychange', onVis);
+      window.addEventListener('blur', cancel);
+    });
+    </script>
+    
+    
+    <input type="hidden" id="has-qtest-explorer-add-on">
+<!-- SPA shell integration (added for index.html) -->
+<style>html.in-spa-frame .pill-nav-inline{display:none}</style>
+<script>
+(function(){
+  if (window.self !== window.top) document.documentElement.classList.add('in-spa-frame');
+  function notifyHeight(){
+    try { parent.postMessage({type:'spa-resize', height:document.documentElement.scrollHeight}, '*'); } catch(e){}
+  }
+  notifyHeight();
+  window.addEventListener('load', notifyHeight);
+  window.addEventListener('resize', notifyHeight);
+  document.addEventListener('click', function(){ setTimeout(notifyHeight,250); setTimeout(notifyHeight,800); });
+  try { new MutationObserver(function(){ setTimeout(notifyHeight,100); }).observe(document.body,{childList:true,subtree:true,attributes:true}); } catch(e){}
+  setInterval(notifyHeight, 1500);
+})();
+</script>
+</body></html>
