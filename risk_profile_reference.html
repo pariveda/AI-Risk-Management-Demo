@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Risk Profile Reference | AI Governance Hub</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&amp;family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600&amp;display=swap" rel="stylesheet">
+  <style>
+  /* ── Pariveda brand palette (matches the hub) ── */
+  :root{
+    --midnight:#010F31; --bg:#F7F8FC; --card:#FFFFFF; --text:#101935;
+    --t2:#5A6072; --t3:#9CA0AB; --brd:#E9EAEC; --brd2:#C7C9D1;
+    --logo:#1C2C80; --indigo:#1A57D6; --vibrant:#2C75FF;
+    --pale:#EBE9F5; --paleblue:#EBF1FF; --coral:#F95353; --orange:#FF861E; --r:12px;
+    /* semantic risk colors (consistent with the catalog) */
+    --low-bg:#dcfce7; --low-fg:#166534;
+    --mod-bg:#fef3c7; --mod-fg:#92400e;
+    --high-bg:#fee2e2; --high-fg:#991b1b;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:'DM Sans',-apple-system,sans-serif;background:var(--bg);color:var(--text);line-height:1.6;font-size:16px}
+  h1,h2,h3,h4{font-family:'Outfit',sans-serif}
+
+  /* ── PILL NAV ── */
+  .pill-links{display:flex;gap:0;flex-wrap:wrap;width:100%;justify-content:space-between}
+  .pn{font-size:14px;font-weight:500;color:var(--t2);text-decoration:none;padding:8px 16px;border-radius:100px;transition:all .2s;white-space:nowrap;position:relative}
+  .pn:hover{color:var(--text);background:rgba(1,15,49,.04)}
+  .pn.active{color:var(--midnight);font-weight:600;background:rgba(1,15,49,.06)}
+  .pn::after{content:'';position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:0;height:2px;background:var(--midnight);border-radius:2px;transition:width .25s}
+  .pn:hover::after,.pn.active::after{width:60%}
+  .pill-nav-inline{background:var(--card);border:1px solid var(--brd);border-radius:var(--r);padding:12px 24px;display:flex;align-items:center;justify-content:space-between;box-shadow:0 1px 4px rgba(0,0,0,.04);position:sticky;top:0;z-index:50}
+
+  /* ── CONTENT / HERO ── */
+  .content{max-width:1080px;margin:0 auto;padding:0 40px}
+  .hero{margin-top:20px;position:relative;overflow:hidden;border-radius:var(--r)}
+  .hero-bg{position:absolute;inset:0}
+  .hero-bg::after{content:'';position:absolute;inset:0;background:#1C2C80}
+  .hero-inner{position:relative;z-index:2;padding:32px 40px 28px}
+  .hero h1{font-size:34px;font-weight:800;color:#fff;letter-spacing:-.4px;line-height:1.1}
+  .hero h1 span{display:block;font-weight:400;font-size:15px;letter-spacing:0;margin-bottom:8px;color:#fff;opacity:.75}
+  .hero p{font-size:16px;color:#fff;opacity:.85;max-width:560px;margin-top:12px;line-height:1.6}
+
+  /* ── STACKED PANELS ── */
+  .content-wrapper{background:var(--card);border:1px solid var(--brd);border-radius:var(--r);padding:32px 36px;margin-top:20px}
+  .content-wrapper .panel{margin-bottom:32px}
+  .content-wrapper .panel:last-child{margin-bottom:0}
+  .section-label{font-family:'Outfit';font-size:15px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:var(--midnight);margin:0 0 18px;display:flex;align-items:center;gap:10px}
+  .section-label::after{content:'';flex:1;height:1px;background:var(--brd)}
+  .intro-text{font-size:16px;color:var(--t2);line-height:1.7}
+  .intro-text strong{color:var(--text);font-weight:600}
+  .intro-text a{color:var(--indigo);font-weight:600;text-decoration:underline}
+  .intro-text a:hover{color:var(--logo)}
+
+  /* preview callout */
+  .callout{background:var(--paleblue);border:1px solid #C2D6FF;border-left:3px solid var(--vibrant);border-radius:0 8px 8px 0;padding:14px 18px;margin-top:14px}
+  .callout .ct{font-family:'Outfit';font-weight:700;color:var(--logo);font-size:14px;margin-bottom:4px}
+  .callout p{font-size:14px;color:var(--t2);line-height:1.6}
+  .callout a{color:var(--indigo);font-weight:600;text-decoration:underline}
+  .instruct{font-size:13.5px;color:var(--t2);margin-top:14px;line-height:1.6}
+  .instruct .vp-key{display:inline-block;background:var(--high-bg);color:var(--high-fg);font-weight:700;font-size:11px;padding:1px 7px;border-radius:4px}
+
+  /* ── DIMENSION SCORERS (compact, centered row) ── */
+  #dims{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;align-items:stretch}
+  .dim{border:1px solid var(--brd);border-radius:10px;padding:16px 10px;display:flex;flex-direction:column;text-align:center;transition:border-color .2s,box-shadow .2s}
+  .dim.scored{border-color:#C2D6FF;box-shadow:0 2px 10px rgba(26,87,214,.06)}
+  .dim-name{font-family:'Outfit';font-weight:700;font-size:14.5px;color:var(--midnight);line-height:1.25}
+  .dim-wt{font-size:11.5px;font-weight:600;color:var(--t2);margin-top:2px;margin-bottom:12px}
+  .dim-wt b{color:var(--indigo);font-weight:700}
+  .scores{display:flex;gap:5px;justify-content:center;flex-wrap:wrap}
+  .sbtn{width:26px;height:26px;border-radius:50%;border:1.5px solid var(--brd2);background:var(--card);font-family:'Outfit';font-weight:700;font-size:12.5px;color:var(--t2);cursor:pointer;transition:all .15s;position:relative;flex-shrink:0}
+  .sbtn:hover{border-color:var(--indigo);color:var(--indigo)}
+  .sbtn.sel{background:var(--indigo);border-color:var(--indigo);color:#fff;box-shadow:0 4px 12px rgba(26,87,214,.25)}
+  .sbtn.vp::after{content:'VP';position:absolute;top:-8px;right:-8px;font-size:6.5px;font-weight:800;letter-spacing:.3px;background:var(--coral);color:#fff;padding:1px 3px;border-radius:4px;line-height:1.3}
+  .sbtn.vp.sel{background:var(--coral);border-color:var(--coral)}
+  .dim-desc{font-size:11.5px;color:var(--t3);margin-top:10px;line-height:1.45;flex-grow:1;display:flex;align-items:center;justify-content:center}
+  .dim-desc.set{color:var(--text)}
+  .dim-desc b{color:var(--text);font-weight:600}
+  .dim-detail{width:100%;margin-top:10px;padding:9px 10px;border:1px solid var(--brd);border-radius:8px;font-family:'DM Sans';font-size:12px;color:var(--text);background:var(--bg);outline:none;transition:border-color .2s;text-align:center;resize:vertical;min-height:78px;line-height:1.45}
+  .dim-detail:focus{border-color:var(--vibrant)}
+  .dim-detail::placeholder{color:var(--t3)}
+  @media(max-width:1080px){ #dims{grid-template-columns:repeat(3,1fr)} }
+  @media(max-width:680px){ #dims{grid-template-columns:repeat(2,1fr)} }
+  @media(max-width:440px){ #dims{grid-template-columns:1fr} }
+
+  /* ── LIVE RESULT ── */
+  .result{border:1.5px solid var(--brd);border-radius:12px;overflow:hidden;margin-top:6px}
+  .result-top{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:18px 22px;background:var(--bg);flex-wrap:wrap}
+  .result-total{font-family:'Outfit';font-size:15px;color:var(--t2)}
+  .result-total b{font-size:30px;color:var(--midnight);font-weight:800}
+  .result-pill{font-family:'Outfit';font-weight:700;font-size:14px;padding:7px 18px;border-radius:100px;text-transform:uppercase;letter-spacing:.5px;background:#f3f4f6;color:#6b7280}
+  .result-pill.low{background:var(--low-bg);color:var(--low-fg)}
+  .result-pill.mod{background:var(--mod-bg);color:var(--mod-fg)}
+  .result-pill.high{background:var(--high-bg);color:var(--high-fg)}
+  .result-msg{padding:16px 22px;font-size:14px;line-height:1.65;color:var(--text)}
+  .result-msg .rm-title{font-family:'Outfit';font-weight:700;margin-bottom:4px;display:block}
+  .result-msg a{color:var(--indigo);font-weight:600;text-decoration:underline}
+  .result-note{font-size:12px;color:var(--t3);font-style:italic;padding:0 22px 16px}
+
+  /* summary table */
+  .sum-wrap{overflow-x:auto;margin-top:14px;border:1px solid var(--brd);border-radius:10px}
+  table.sum{width:100%;border-collapse:collapse;font-size:12.5px;min-width:560px}
+  table.sum th{background:var(--midnight);color:#fff;font-family:'Outfit';font-size:10.5px;font-weight:600;text-transform:uppercase;letter-spacing:.6px;padding:10px 12px;text-align:left}
+  table.sum td{padding:10px 12px;border-bottom:1px solid var(--brd);color:var(--t2);vertical-align:top}
+  table.sum tr:last-child td{border-bottom:none}
+  table.sum .c{text-align:center;font-weight:700;color:var(--text)}
+  table.sum td.vpcell{color:var(--high-fg);background:var(--high-bg)}
+  table.sum tr.total td{background:var(--paleblue);font-weight:700;color:var(--midnight)}
+
+  /* ── SCORING MATRIX (reference) ── */
+  .matrix-wrap{overflow-x:auto;border:1px solid var(--brd);border-radius:10px}
+  table.matrix{width:100%;border-collapse:collapse;font-size:11.5px;min-width:860px}
+  table.matrix th{background:var(--midnight);color:#fff;font-family:'Outfit';font-size:10.5px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;padding:10px 10px;text-align:center}
+  table.matrix th:first-child{text-align:left}
+  table.matrix td{padding:9px 10px;border-bottom:1px solid var(--brd);border-left:1px solid var(--brd);color:var(--t2);vertical-align:top;line-height:1.45;width:17%}
+  table.matrix td:first-child{border-left:none;font-weight:700;color:var(--midnight);font-family:'Outfit';white-space:nowrap;width:auto}
+  table.matrix td.wt{text-align:center;font-weight:700;color:var(--indigo);background:var(--paleblue);width:48px}
+  table.matrix tr:last-child td{border-bottom:none}
+  table.matrix td.cell{cursor:help}
+  table.matrix td.empty{background:repeating-linear-gradient(45deg,transparent,transparent 6px,rgba(1,15,49,.025) 6px,rgba(1,15,49,.025) 12px)}
+  /* low / moderate / high risk-band shading */
+  table.matrix td.sc-low{background:var(--low-bg);color:var(--low-fg)}
+  table.matrix td.sc-mod{background:var(--mod-bg);color:var(--mod-fg)}
+  table.matrix td.sc-high{background:var(--high-bg);color:var(--high-fg)}
+  table.matrix td.vp{font-weight:600}
+  .vpb{display:inline-block;font-size:8px;font-weight:800;letter-spacing:.3px;background:var(--high-fg);color:#fff;padding:1px 4px;border-radius:4px;vertical-align:middle;margin-right:3px}
+  .matrix-legend{display:flex;gap:14px;flex-wrap:wrap;margin-top:10px;font-size:11.5px;color:var(--t2)}
+  .matrix-legend span{display:inline-flex;align-items:center;gap:6px}
+  .matrix-legend i{width:13px;height:13px;border-radius:3px;display:inline-block}
+  .lg-low{background:var(--low-bg);border:1px solid var(--low-fg)}
+  .lg-mod{background:var(--mod-bg);border:1px solid var(--mod-fg)}
+  .lg-high{background:var(--high-bg);border:1px solid var(--high-fg)}
+
+  /* ── DEFINITIONS ── */
+  .defs{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+  .def{border:1px solid var(--brd);border-radius:10px;padding:16px 18px}
+  .def.low{border-top:3px solid var(--low-fg)}
+  .def.mod{border-top:3px solid var(--mod-fg)}
+  .def.high{border-top:3px solid var(--high-fg)}
+  .def-h{font-family:'Outfit';font-weight:700;font-size:15px;margin-bottom:2px}
+  .def.low .def-h{color:var(--low-fg)} .def.mod .def-h{color:var(--mod-fg)} .def.high .def-h{color:var(--high-fg)}
+  .def-range{font-size:12px;font-weight:700;color:var(--t3);margin-bottom:8px}
+  .def p{font-size:12.5px;color:var(--t2);line-height:1.55}
+
+  /* ── CTA ── */
+  .cta{background:var(--card);border:1px solid var(--brd);border-radius:var(--r);margin:16px 0 28px;padding:22px 28px;display:flex;align-items:center;justify-content:space-between;gap:20px}
+  .cta h3{font-size:19px;font-weight:700;font-family:'Outfit'}
+  .cta p{font-size:15px;color:var(--t2);margin-top:2px}
+  .btn{display:inline-flex;align-items:center;gap:6px;padding:10px 22px;border-radius:var(--r);font-family:'Outfit';font-size:13px;font-weight:600;text-decoration:none;border:none;cursor:pointer;transition:all .2s;white-space:nowrap;background:var(--midnight);color:#fff}
+  .btn:hover{background:var(--logo);box-shadow:0 4px 16px rgba(1,15,49,.25)}
+
+  @media(max-width:1024px){
+    .pill-nav-inline{flex-direction:column;gap:10px;align-items:flex-start}
+    .pill-links{overflow-x:auto;flex-wrap:nowrap;-webkit-overflow-scrolling:touch;width:100%}
+  }
+  @media(max-width:760px){
+    .defs{grid-template-columns:1fr}
+    .content{padding:0 16px}
+    .hero h1{font-size:26px}
+    .content-wrapper{padding:24px 20px}
+    .cta{flex-direction:column;text-align:center}
+  }
+  </style>
+</head>
+<body>
+
+  <div class="content">
+
+    <!-- HERO -->
+    <div class="hero">
+      <div class="hero-bg"></div>
+      <div class="hero-inner">
+        <h1><span>AI Governance &amp; Enablement</span>AI Risk Profile</h1>
+        <p>Evaluate your AI solution across five weighted risk dimensions and preview where it would land before formal governance review.</p>
+      </div>
+    </div>
+
+    <!-- PILL NAV -->
+    <div class="pill-nav-inline">
+      <div class="pill-links">
+        <a class="pn" href="">Home</a>
+        <a class="pn" href="">Our Team</a>
+        <a class="pn" href="ai_governance_process_poc.html">AI Governance Process</a>
+        <a class="pn active" href="risk_profile_reference.html">Risk Profile Reference</a>
+        <a class="pn" href="ai_solution_inventory_poc.html">AI Solution Catalog</a>
+        <a class="pn" href="ai_inventory_list_poc.html">AI Inventory List</a>
+        <a class="pn" href="">FAQs</a>
+      </div>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div class="content-wrapper">
+
+      <!-- Intro -->
+      <div class="panel">
+        <div class="section-label">Overview</div>
+        <div class="callout">
+          <div class="ct">Preview — Early Risk Evaluation</div>
+          <p>The Risk Profile is available here so you can self-evaluate your AI solution early, explore the scoring dimensions, and understand what governance review will look like. <strong>No submission happens from this page.</strong> When you're ready for formal review, head to the <a href="ai-risk-value-calculator.html">AI Intake Form</a>, where this profile is built in as part of the official process.</p>
+        </div>
+        <p class="instruct">Score each dimension below by clicking the appropriate number, then optionally describe your rationale to get the most accurate read. Scores marked <span class="vp-key">VP</span> indicate a critical level that would require VP approval at formal submission.</p>
+      </div>
+
+      <!-- Scoring matrix (reference) -->
+      <div class="panel">
+        <div class="section-label">Scoring Matrix</div>
+        <p class="instruct" style="margin-top:0;margin-bottom:14px">Review the scoring matrix before rating each dimension. Cells are shaded by risk band — low, moderate, and high. Hover over any cell for detailed guidance. A <span class="vp-key">VP</span> badge marks levels that would require VP approval at formal submission.</p>
+        <div class="matrix-wrap">
+          <table class="matrix">
+            <thead><tr><th>Dimension</th><th>Wt</th><th>1</th><th>2</th><th>3</th><th>4</th><th>5</th></tr></thead>
+            <tbody id="matrixBody"></tbody>
+          </table>
+        </div>
+        <div class="matrix-legend">
+          <span><i class="lg-low"></i> Low (1–2)</span>
+          <span><i class="lg-mod"></i> Moderate (3)</span>
+          <span><i class="lg-high"></i> High (4–5)</span>
+          <span><span class="vpb">VP</span> Requires VP approval</span>
+        </div>
+      </div>
+
+      <!-- Scoring -->
+      <div class="panel">
+        <div class="section-label">Risk Dimensions</div>
+        <div id="dims"></div>
+      </div>
+
+      <!-- Live result -->
+      <div class="panel">
+        <div class="section-label">Your Estimated Risk Level</div>
+        <div class="result">
+          <div class="result-top">
+            <div class="result-total">Total <b id="rTotal">0</b> / 85</div>
+            <div class="result-pill" id="rPill">Not Assessed</div>
+          </div>
+          <div class="result-msg" id="rMsg"><span class="rm-title">Score the dimensions above</span>Your estimated risk level and next steps will appear here as you rate each dimension.</div>
+          <div class="result-note" id="rNote"></div>
+        </div>
+        <div class="sum-wrap">
+          <table class="sum">
+            <thead><tr><th>Dimension</th><th>Selected level</th><th>Detail</th><th>Score</th><th>Wt</th><th>Weighted</th></tr></thead>
+            <tbody id="sumBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Definitions -->
+      <div class="panel">
+        <div class="section-label">AI Risk Level Definitions</div>
+        <div class="defs">
+          <div class="def low">
+            <div class="def-h">🟢 Low Risk</div>
+            <div class="def-range">Score 17 – 36</div>
+            <p>Standard AI solutions with minimal organizational risk — typically third-party tools, public data, limited autonomy, and restricted access. No additional governance engagement is typically required; standard operational controls apply.</p>
+          </div>
+          <div class="def mod">
+            <div class="def-h">🟡 Moderate Risk</div>
+            <div class="def-range">Score 37 – 53</div>
+            <p>Elevated risk factors requiring additional oversight. The Architecture Review Board reviews these assessments, and additional documentation, controls, or monitoring may be needed before deployment.</p>
+          </div>
+          <div class="def high">
+            <div class="def-h">🔴 High Risk</div>
+            <div class="def-range">Score 54 – 85</div>
+            <p>Significant organizational risk. A formal Architecture Review Board review and VP-level approval are mandatory before proceeding. Enhanced controls, ongoing monitoring, compliance documentation, and periodic re-assessments are required throughout the solution's lifecycle.</p>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- END CONTENT WRAPPER -->
+
+    <!-- CTA -->
+    <div class="cta">
+      <div>
+        <h3>Ready for formal review?</h3>
+        <p>This profile is built into the intake process — complete it there when you're ready to submit.</p>
+      </div>
+      <a href="ai-risk-value-calculator.html" class="btn">AI Intake Form →</a>
+    </div>
+
+  </div>
+
+  <script>
+  // ── Risk model (rebuilt natively; sanitized) ──
+  var DIMS=[
+    {k:'solutionType',n:'Solution Type',w:1,scores:[1,3,5],vp:[5],
+     r:{1:"Third-party AI tools",3:"Internally developed AI solution using a third-party model, OR a third-party tool with customization",5:"Internally developed AI solution using a custom model"},
+     t:{1:"Out-of-the-box solution from a reputable third-party vendor with minimal configuration. Examples: M365 Copilot, Grammarly AI.",3:"AI apps built in-house on external AI models (e.g., Azure OpenAI, Google Gemini) with significant configuration, prompt engineering, or workflow integration. Examples: a custom web app on a hosted LLM, a CRM AI customized with company data, low-code agent builders.",5:"Proprietary models developed, trained, and deployed in-house. Full responsibility for training data, architecture, and deployment. Examples: an in-house trained LLM, a domain-specific predictive model."}},
+    {k:'dataRisk',n:'Data Risk',w:5,scores:[1,3,5],vp:[5],
+     r:{1:"Public",3:"Internal business data (non-sensitive)",5:"Sensitive / regulated data"},
+     t:{1:"No confidential or proprietary internal data — only external research sources used.",3:"General proprietary company documentation not publicly available, but not regulated or personally identifiable. Examples: training manuals, process docs, internal strategy decks.",5:"Includes PII, PCI, or PHI, or proprietary/customer data that, if shared externally, could result in exposure or loss. Subject to regulations such as GDPR or HIPAA. Note: if Data Risk = 5, legal, compliance, and security approval is required."}},
+    {k:'access',n:'Access',w:3,scores:[1,2,3,4,5],vp:[4,5],
+     r:{1:"Developers only (super users)",2:"Trusted team (small, limited-access group)",3:"Role-based access control (internal use only)",4:"Multi-level access (including external partners)",5:"Full external access (including unverified users)"},
+     t:{1:"Very small group (developers / IT admins) with full control.",2:"Small internal team, same permissions, restricted to a specific function.",3:"Structured by job roles, company employees only.",4:"Employees plus approved external users; human review required for key actions.",5:"External users can directly access without internal review."}},
+    {k:'capabilities',n:'Capabilities',w:5,scores:[1,2,3,4,5],vp:[4,5],
+     r:{1:"No decision-making; simple data processing",2:"Advises and/or makes recommendations",3:"Takes limited actions when prompted",4:"Makes decisions with some human oversight",5:"Acts independently without human oversight"},
+     t:{1:"Simple data processing, informational content only. No decisions made by the AI. Impact: low.",2:"System suggests; a human chooses. Impact: low–moderate.",3:"System acts with explicit human approval. Impact: moderate.",4:"System acts by default with limited human oversight. Impact: moderate–high.",5:"System acts independently with no human review. Impact: high."}},
+    {k:'qualityAndAccuracy',n:'Quality & Accuracy',w:3,scores:[1,2,3,4,5],vp:[4,5],
+     r:{1:"Errors have minimal impact",2:"Errors can cause delays with workarounds",3:"Errors can cause process disruptions",4:"Errors can cause operational disruption",5:"Errors can cause legal and/or reputational damage"},
+     t:{1:"Errors expected; little to no effect.",2:"Inaccuracies slow tasks; alternatives exist.",3:"Errors block operations until fixed.",4:"Extended downtime or inefficiencies across teams.",5:"Serious consequences: lawsuits, compliance breaches, brand damage."}}
+  ];
+  var MAX=85;
+  var state={};
+  DIMS.forEach(function(d){ state[d.k]={score:null,detail:''}; });
+
+  function classify(t){
+    if(t<=0) return {l:'Not Assessed',c:''};
+    if(t<=36) return {l:'Low',c:'low'};
+    if(t<=53) return {l:'Moderate',c:'mod'};
+    return {l:'High',c:'high'};
+  }
+  function esc(s){return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+
+  var PH={
+    solutionType:"Is it a vendor tool, custom-built on a 3rd-party model, or in-house? Include the vendor name if applicable.",
+    dataRisk:"What data will this AI solution access or process? Specify data classifications (public, internal, sensitive/regulated).",
+    access:"Who will have access to this AI solution? Describe user groups, roles, and whether external parties are involved.",
+    capabilities:"What decisions or actions can this AI take? Describe the level of human oversight and autonomy.",
+    qualityAndAccuracy:"What happens if the AI produces inaccurate results? Describe the business impact of errors."
+  };
+  (function build(){
+    var host=document.getElementById('dims');
+    DIMS.forEach(function(d){
+      var card=document.createElement('div');
+      card.className='dim'; card.id='dim-'+d.k;
+      var btns=d.scores.map(function(s){
+        var vp=d.vp.indexOf(s)>=0?' vp':'';
+        return '<button class="sbtn'+vp+'" data-k="'+d.k+'" data-s="'+s+'" title="'+esc(d.t[s])+'">'+s+'</button>';
+      }).join('');
+      card.innerHTML=
+        '<div class="dim-name">'+d.n+'</div>'+
+        '<div class="dim-wt">Weight: <b>'+d.w+'×</b></div>'+
+        '<div class="scores">'+btns+'</div>'+
+        '<div class="dim-desc" id="desc-'+d.k+'">Select score</div>'+
+        '<textarea class="dim-detail" id="detail-'+d.k+'" placeholder="'+esc(PH[d.k])+'"></textarea>';
+      host.appendChild(card);
+    });
+    host.addEventListener('click',function(e){
+      var b=e.target.closest('.sbtn'); if(!b) return;
+      var k=b.getAttribute('data-k'), s=+b.getAttribute('data-s');
+      state[k].score = (state[k].score===s ? null : s);
+      render();
+    });
+    host.addEventListener('input',function(e){
+      var i=e.target.closest('.dim-detail'); if(!i) return;
+      var k=i.id.replace('detail-',''); state[k].detail=i.value; renderSummary();
+    });
+  })();
+
+  function render(){
+    DIMS.forEach(function(d){
+      var sc=state[d.k].score;
+      var card=document.getElementById('dim-'+d.k);
+      card.classList.toggle('scored', sc!=null);
+      card.querySelectorAll('.sbtn').forEach(function(b){
+        b.classList.toggle('sel', +b.getAttribute('data-s')===sc);
+      });
+      var desc=document.getElementById('desc-'+d.k);
+      if(sc!=null){ desc.className='dim-desc set'; desc.innerHTML='<b>'+sc+' — '+esc(d.r[sc])+'</b>'; }
+      else { desc.className='dim-desc'; desc.textContent='Select score'; }
+    });
+    calc();
+    renderSummary();
+  }
+
+  function calc(){
+    var total=0, scoredCount=0, anyVP=false;
+    DIMS.forEach(function(d){
+      var sc=state[d.k].score;
+      if(sc!=null){ total+=sc*d.w; scoredCount++; if(d.vp.indexOf(sc)>=0) anyVP=true; }
+    });
+    var lvl=classify(total);
+    document.getElementById('rTotal').textContent=total;
+    var pill=document.getElementById('rPill');
+    pill.textContent=lvl.l; pill.className='result-pill'+(lvl.c?' '+lvl.c:'');
+
+    var msg=document.getElementById('rMsg'), note=document.getElementById('rNote');
+    var form='<a href="ai-risk-value-calculator.html">AI Intake Form</a>';
+    if(total<=0){
+      msg.innerHTML='<span class="rm-title">Score the dimensions above</span>Your estimated risk level and next steps will appear here as you rate each dimension.';
+    } else if(lvl.l==='Low' && anyVP){
+      msg.innerHTML='<span class="rm-title">✅ Low Risk — Architecture Review &amp; VP approval would be required</span>Overall risk is Low, but a critical dimension scored in the VP range. Upon formal submission, AI Governance would initiate a required review. Submit via the '+form+' when ready.';
+    } else if(lvl.l==='Low'){
+      msg.innerHTML='<span class="rm-title">✅ Low Risk — standard controls apply</span>This solution would be assessed as Low Risk. No additional governance engagement is typically required and standard operational controls apply. When you’re ready, submit via the '+form+'.';
+    } else if(lvl.l==='Moderate'){
+      msg.innerHTML='<span class="rm-title">⚠️ Moderate Risk — additional governance would be required</span>Upon formal submission, the Architecture Review Board would review your assessment, and additional documentation or controls may be required before deployment. Submit via the '+form+' when ready.';
+    } else {
+      msg.innerHTML='<span class="rm-title">🛑 High Risk — Architecture Review &amp; VP approval would be required</span>Upon formal submission, an Architecture Review Board review and VP-level approval would be required before proceeding. Submit via the '+form+' to begin the process.';
+    }
+    note.textContent = (scoredCount>0 && scoredCount<DIMS.length) ? 'Score all '+DIMS.length+' dimensions for a complete assessment ('+scoredCount+'/'+DIMS.length+' scored).' : '';
+  }
+
+  function renderSummary(){
+    var body=document.getElementById('sumBody'), total=0;
+    body.innerHTML=DIMS.map(function(d){
+      var st=state[d.k], sc=st.score, ws=(sc!=null)?sc*d.w:null, vp=(sc!=null&&d.vp.indexOf(sc)>=0);
+      if(ws!=null) total+=ws;
+      var cls=vp?' class="c vpcell"':' class="c"';
+      return '<tr>'+
+        '<td style="font-weight:600;color:var(--text)">'+d.n+'</td>'+
+        '<td>'+(sc!=null?esc(d.r[sc]):'–')+'</td>'+
+        '<td>'+(st.detail?esc(st.detail):'–')+'</td>'+
+        '<td'+cls+'>'+(sc!=null?sc:'–')+'</td>'+
+        '<td class="c">'+d.w+'</td>'+
+        '<td class="c">'+(ws!=null?ws:'–')+'</td>'+
+      '</tr>';
+    }).join('')+
+    '<tr class="total"><td colspan="5">Total weighted score</td><td class="c">'+total+' / '+MAX+'</td></tr>';
+  }
+
+  // Static reference matrix: every dimension x every score level
+  (function buildMatrix(){
+    function band(s){ return s<=2 ? 'sc-low' : (s===3 ? 'sc-mod' : 'sc-high'); }
+    var body=document.getElementById('matrixBody');
+    body.innerHTML=DIMS.map(function(d){
+      var cells='';
+      for(var s=1;s<=5;s++){
+        if(d.scores.indexOf(s)>=0){
+          var vp=d.vp.indexOf(s)>=0;
+          var cls='cell '+band(s)+(vp?' vp':'');
+          var badge=vp?'<span class="vpb">VP</span> ':'';
+          cells+='<td class="'+cls+'" title="'+esc(d.t[s])+'">'+badge+esc(d.r[s])+'</td>';
+        } else {
+          cells+='<td class="empty" title="Not applicable for this dimension"></td>';
+        }
+      }
+      return '<tr><td>'+d.n+'</td><td class="wt">×'+d.w+'</td>'+cells+'</tr>';
+    }).join('');
+  })();
+
+  render();
+  </script>
+
+<!-- SPA shell integration (added for index.html) -->
+<style>html.in-spa-frame .pill-nav-inline{display:none}</style>
+<script>
+(function(){
+  var framed = window.self !== window.top;
+  if (framed) document.documentElement.classList.add('in-spa-frame');
+
+  function notifyHeight(){
+    try { parent.postMessage({type:'spa-resize', height:document.documentElement.scrollHeight}, '*'); } catch(e){}
+  }
+  notifyHeight();
+  window.addEventListener('load', notifyHeight);
+  window.addEventListener('resize', notifyHeight);
+  document.addEventListener('click', function(){ setTimeout(notifyHeight,250); setTimeout(notifyHeight,800); });
+  try { new MutationObserver(function(){ setTimeout(notifyHeight,100); }).observe(document.body,{childList:true,subtree:true,attributes:true}); } catch(e){}
+  setInterval(notifyHeight, 1500);
+
+  if (framed){
+    document.addEventListener('click', function(e){
+      var a = e.target.closest ? e.target.closest('a[href]') : null;
+      if(!a) return;
+      if(a.target === '_blank') return;
+      var href = a.getAttribute('href') || '';
+      if(!href || href.charAt(0) === '#') return;
+      if(href.indexOf('://') !== -1) return;
+      if(href.toLowerCase().indexOf('mailto:') === 0) return;
+      var path = href.split('?')[0].split('#')[0];
+      if(path.toLowerCase().slice(-5) !== '.html') return;
+      var file = path.split('/').pop();
+      e.preventDefault();
+      e.stopPropagation();
+      parent.postMessage({type:'spa-navigate', file:file}, '*');
+    }, true);
+  }
+})();
+</script>
+</body></html>
