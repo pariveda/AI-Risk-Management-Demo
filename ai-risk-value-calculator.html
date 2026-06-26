@@ -243,10 +243,10 @@
         <div class="fld"><label>Upload ARB Deck <span class="req">*</span></label>
           <div class="upload" onclick="return false"><div class="up-t">Drop your file here or browse</div><div class="up-s">PDF, PPTX, or DOCX up to 25MB</div></div>
         </div>
-        <div class="notice" id="vpNotice" style="display:none"><span class="ic">&#9888;&#65039;</span><div><b>VP Approval Required.</b> Based on your risk profile, please provide the approver's name and upload approval documentation below.</div></div>
+        <div class="notice" id="vpNotice" style="display:none"><span class="ic">&#9888;&#65039;</span><div><b>Leadership Approval Required.</b> Based on your risk profile, please provide the approver's name and upload approval documentation below.</div></div>
         <div class="grid2" id="vpFields" style="display:none">
-          <div class="fld"><label>Approver Name</label><input type="text" data-f="Approver Name" placeholder="VP approver"></div>
-          <div class="fld"><label>VP Approval Document</label><div class="upload" onclick="return false"><div class="up-t">Drop your file here or browse</div><div class="up-s">PDF, MSG, EML, or image up to 25MB</div></div></div>
+          <div class="fld"><label>Approver Name</label><input type="text" data-f="Approver Name" placeholder="Leadership approver"></div>
+          <div class="fld"><label>Leaderhsip Approval Document</label><div class="upload" onclick="return false"><div class="up-t">Drop your file here or browse</div><div class="up-s">PDF, MSG, EML, or image up to 25MB</div></div></div>
         </div>
         <div class="err-msg" data-err>Please upload your ARB deck before continuing.</div>
         <div class="form-foot"><div class="foot-l"><button class="btn btn-o" data-back>&larr; Back</button></div><div class="foot-r"><button class="btn btn-g" data-clear>Clear</button><button class="btn btn-p" data-next>Continue &rarr;</button></div></div>
@@ -329,10 +329,10 @@
     var pill=document.getElementById('rPill'); pill.textContent=lvl.l; pill.className='result-pill'+(lvl.c?' '+lvl.c:'');
     var msg=document.getElementById('rMsg');
     if(total<=0) msg.innerHTML='<span class="rm-title">Score all five dimensions</span>Your estimated risk level and next steps will appear here.';
-    else if(lvl.l==='Low'&&anyVP) msg.innerHTML='<span class="rm-title">&#9989; Low Risk &mdash; Architecture Review &amp; VP approval required</span>Overall risk is Low, but a critical dimension scored in the VP range. AI Governance will follow up to initiate the review.';
+    else if(lvl.l==='Low'&&anyVP) msg.innerHTML='<span class="rm-title">&#9989; Low Risk &mdash; Architecture Review &amp; leadership approval required</span>Overall risk is Low, but a critical dimension scored in the leadership range. AI Governance will follow up to initiate the review.';
     else if(lvl.l==='Low') msg.innerHTML='<span class="rm-title">&#9989; Low Risk &mdash; standard controls apply</span>No additional governance engagement is required at this time. AI Governance will follow up to confirm.';
     else if(lvl.l==='Moderate') msg.innerHTML='<span class="rm-title">&#9888;&#65039; Moderate Risk &mdash; additional governance required</span>The Architecture Review Board will review this assessment; additional documentation or controls may be required.';
-    else msg.innerHTML='<span class="rm-title">&#128721; High Risk &mdash; Architecture Review &amp; VP approval required</span>A formal Architecture Review Board review and VP-level approval are required before proceeding.';
+    else msg.innerHTML='<span class="rm-title">&#128721; High Risk &mdash; Architecture Review &amp; leadership approval required</span>A formal Architecture Review Board review and leadership-level approval are required before proceeding.';
     // toggle VP fields in ARB step
     var showVP = anyVP || lvl.l==='High';
     document.getElementById('vpNotice').style.display = showVP?'flex':'none';

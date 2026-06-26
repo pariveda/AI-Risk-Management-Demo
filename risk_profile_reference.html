@@ -71,7 +71,7 @@
   .sbtn{width:26px;height:26px;border-radius:50%;border:1.5px solid var(--brd2);background:var(--card);font-family:'Outfit';font-weight:700;font-size:12.5px;color:var(--t2);cursor:pointer;transition:all .15s;position:relative;flex-shrink:0}
   .sbtn:hover{border-color:var(--indigo);color:var(--indigo)}
   .sbtn.sel{background:var(--indigo);border-color:var(--indigo);color:#fff;box-shadow:0 4px 12px rgba(26,87,214,.25)}
-  .sbtn.vp::after{content:'VP';position:absolute;top:-8px;right:-8px;font-size:6.5px;font-weight:800;letter-spacing:.3px;background:var(--coral);color:#fff;padding:1px 3px;border-radius:4px;line-height:1.3}
+  .sbtn.vp::after{content:'!';position:absolute;top:-8px;right:-8px;font-size:6.5px;font-weight:800;letter-spacing:.3px;background:var(--coral);color:#fff;padding:1px 3px;border-radius:4px;line-height:1.3}
   .sbtn.vp.sel{background:var(--coral);border-color:var(--coral)}
   .dim-desc{font-size:11.5px;color:var(--t3);margin-top:10px;line-height:1.45;flex-grow:1;display:flex;align-items:center;justify-content:center}
   .dim-desc.set{color:var(--text)}
@@ -198,13 +198,13 @@
           <div class="ct">Preview — Early Risk Evaluation</div>
           <p>The Risk Profile is available here so you can self-evaluate your AI solution early, explore the scoring dimensions, and understand what governance review will look like. <strong>No submission happens from this page.</strong> When you're ready for formal review, head to the <a href="ai-risk-value-calculator.html">AI Intake Form</a>, where this profile is built in as part of the official process.</p>
         </div>
-        <p class="instruct">Score each dimension below by clicking the appropriate number, then optionally describe your rationale to get the most accurate read. Scores marked <span class="vp-key">VP</span> indicate a critical level that would require VP approval at formal submission.</p>
+        <p class="instruct">Score each dimension below by clicking the appropriate number, then optionally describe your rationale to get the most accurate read. Scores marked <span class="vp-key">!</span> indicate a critical level that would require leadership approval at formal submission.</p>
       </div>
 
       <!-- Scoring matrix (reference) -->
       <div class="panel">
         <div class="section-label">Scoring Matrix</div>
-        <p class="instruct" style="margin-top:0;margin-bottom:14px">Review the scoring matrix before rating each dimension. Cells are shaded by risk band — low, moderate, and high. Hover over any cell for detailed guidance. A <span class="vp-key">VP</span> badge marks levels that would require VP approval at formal submission.</p>
+        <p class="instruct" style="margin-top:0;margin-bottom:14px">Review the scoring matrix before rating each dimension. Cells are shaded by risk band — low, moderate, and high. Hover over any cell for detailed guidance. A <span class="vp-key">!</span> badge marks levels that would require leadership approval at formal submission.</p>
         <div class="matrix-wrap">
           <table class="matrix">
             <thead><tr><th>Dimension</th><th>Wt</th><th>1</th><th>2</th><th>3</th><th>4</th><th>5</th></tr></thead>
@@ -215,7 +215,7 @@
           <span><i class="lg-low"></i> Low (1–2)</span>
           <span><i class="lg-mod"></i> Moderate (3)</span>
           <span><i class="lg-high"></i> High (4–5)</span>
-          <span><span class="vpb">VP</span> Requires VP approval</span>
+          <span><span class="vpb">!</span> Requires leadership approval</span>
         </div>
       </div>
 
@@ -261,7 +261,7 @@
           <div class="def high">
             <div class="def-h">🔴 High Risk</div>
             <div class="def-range">Score 54 – 85</div>
-            <p>Significant organizational risk. A formal Architecture Review Board review and VP-level approval are mandatory before proceeding. Enhanced controls, ongoing monitoring, compliance documentation, and periodic re-assessments are required throughout the solution's lifecycle.</p>
+            <p>Significant organizational risk. A formal Architecture Review Board review and leadership-level approval are mandatory before proceeding. Enhanced controls, ongoing monitoring, compliance documentation, and periodic re-assessments are required throughout the solution's lifecycle.</p>
           </div>
         </div>
       </div>
@@ -378,13 +378,13 @@
     if(total<=0){
       msg.innerHTML='<span class="rm-title">Score the dimensions above</span>Your estimated risk level and next steps will appear here as you rate each dimension.';
     } else if(lvl.l==='Low' && anyVP){
-      msg.innerHTML='<span class="rm-title">✅ Low Risk — Architecture Review &amp; VP approval would be required</span>Overall risk is Low, but a critical dimension scored in the VP range. Upon formal submission, AI Governance would initiate a required review. Submit via the '+form+' when ready.';
+      msg.innerHTML='<span class="rm-title">✅ Low Risk — Architecture Review &amp; leadership approval would be required</span>Overall risk is Low, but a critical dimension scored in the leadership range. Upon formal submission, AI Governance would initiate a required review. Submit via the '+form+' when ready.';
     } else if(lvl.l==='Low'){
       msg.innerHTML='<span class="rm-title">✅ Low Risk — standard controls apply</span>This solution would be assessed as Low Risk. No additional governance engagement is typically required and standard operational controls apply. When you’re ready, submit via the '+form+'.';
     } else if(lvl.l==='Moderate'){
       msg.innerHTML='<span class="rm-title">⚠️ Moderate Risk — additional governance would be required</span>Upon formal submission, the Architecture Review Board would review your assessment, and additional documentation or controls may be required before deployment. Submit via the '+form+' when ready.';
     } else {
-      msg.innerHTML='<span class="rm-title">🛑 High Risk — Architecture Review &amp; VP approval would be required</span>Upon formal submission, an Architecture Review Board review and VP-level approval would be required before proceeding. Submit via the '+form+' to begin the process.';
+      msg.innerHTML='<span class="rm-title">🛑 High Risk — Architecture Review &amp; leadership approval would be required</span>Upon formal submission, an Architecture Review Board review and leadership-level approval would be required before proceeding. Submit via the '+form+' to begin the process.';
     }
     note.textContent = (scoredCount>0 && scoredCount<DIMS.length) ? 'Score all '+DIMS.length+' dimensions for a complete assessment ('+scoredCount+'/'+DIMS.length+' scored).' : '';
   }
@@ -417,7 +417,7 @@
         if(d.scores.indexOf(s)>=0){
           var vp=d.vp.indexOf(s)>=0;
           var cls='cell '+band(s)+(vp?' vp':'');
-          var badge=vp?'<span class="vpb">VP</span> ':'';
+          var badge=vp?'<span class="vpb">!</span> ':'';
           cells+='<td class="'+cls+'" title="'+esc(d.t[s])+'">'+badge+esc(d.r[s])+'</td>';
         } else {
           cells+='<td class="empty" title="Not applicable for this dimension"></td>';
