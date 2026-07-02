@@ -1,0 +1,119 @@
+name: deploy
+
+# Build-optional static deploy. Works for two buildModes (see detect-shape.mjs):
+#   node — a package.json is present: `npm run build` produces ./out, published.
+#   none — raw static site (HTML at repo root, no package.json): the repo root
+#          is published as-is (nothing to build).
+# The mode is decided at runtime from the checked-out tree, so one workflow
+# serves both without per-app edits.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '*.html'
+      - 'app/**'
+      - 'components/**'
+      - 'lib/**'
+      - 'public/**'
+      - 'assets/**'
+      - 'next.config.ts'
+      - 'next.config.mjs'
+      - 'next.config.js'
+      - 'next-env.d.ts'
+      - 'tsconfig.json'
+      - 'postcss.config.mjs'
+      - 'package.json'
+      - 'package-lock.json'
+      - '.github/workflows/deploy.yml'
+  workflow_dispatch:
+
+permissions:
+  id-token: write
+  contents: read
+
+concurrency:
+  group: deploy-site
+  cancel-in-progress: false
+
+env:
+  AWS_REGION: us-east-1
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    env:
+      S3_BUCKET: airisk-site-${{ vars.AWS_ACCOUNT_ID }}
+      DEPLOY_ROLE_ARN: arn:aws:iam::${{ vars.AWS_ACCOUNT_ID }}:role/airisk-github-deploy
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - name: Detect build mode
+        id: mode
+        run: |
+          if [ -f package.json ]; then
+            echo "node=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "node=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - uses: actions/setup-node@1d0ff469b7ec7b3cb9d8673fde0c81c44821de2a # v4.1.0
+        if: steps.mode.outputs.node == 'true'
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Build
+        if: steps.mode.outputs.node == 'true'
+        run: |
+          npm ci
+          npm run build
+
+      - name: Resolve publish dir
+        id: pub
+        # A node build publishes ./out; a raw static site publishes the repo root.
+        run: |
+          if [ -d ./out ]; then
+            echo "dir=./out" >> "$GITHUB_OUTPUT"
+          else
+            echo "dir=." >> "$GITHUB_OUTPUT"
+          fi
+
+      - uses: aws-actions/configure-aws-credentials@e3dd6a429d7300a6a4c196c26e071d42e0343502 # v4.0.4
+        with:
+          role-to-assume: ${{ env.DEPLOY_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Sync to S3
+        # node build (./out): two passes — regular paths get a short cache,
+        #   hashed assets under _next/static/ get immutable long-lived cache.
+        # raw root (.): single pass, excluding repo/infra/CI files that must
+        #   never be published.
+        run: |
+          SRC="${{ steps.pub.outputs.dir }}"
+          if [ "$SRC" = "./out" ]; then
+            aws s3 sync ./out "s3://${S3_BUCKET}" \
+              --delete \
+              --cache-control "public, max-age=3600, must-revalidate" \
+              --exclude "_next/static/*"
+
+            aws s3 sync ./out "s3://${S3_BUCKET}" \
+              --cache-control "public, max-age=31536000, immutable" \
+              --exclude "*" \
+              --include "_next/static/*"
+          else
+            aws s3 sync . "s3://${S3_BUCKET}" \
+              --delete \
+              --cache-control "public, max-age=3600, must-revalidate" \
+              --exclude ".git/*" \
+              --exclude "infra/*" \
+              --exclude ".github/*" \
+              --exclude "*.md" \
+              --exclude "CNAME"
+          fi
+
+      - name: Invalidate CloudFront
+        run: |
+          aws cloudfront create-invalidation \
+            --distribution-id "${{ vars.CLOUDFRONT_DISTRIBUTION_ID }}" \
+            --paths "/*"
