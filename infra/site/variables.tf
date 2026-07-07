@@ -13,3 +13,9 @@ variable "enable_access_logging" {
   type        = bool
   default     = true
 }
+
+variable "allowed_cidr_blocks" {
+  description = "IPv4 CIDRs allowed by the WAF IP allowlist. Empty = public (no allowlist rule)."
+  type        = list(string)
+  default     = []
+}

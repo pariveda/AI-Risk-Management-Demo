@@ -1,6 +1,16 @@
-# WAF — public defaults: AWS Managed Common, SQLi, Known Bad Inputs, rate limit.
-# (No IP allowlist by default. Apps that need one can add an aws_wafv2_ip_set
-# and a higher-priority NotStatement rule, mirroring the ef4 pattern.)
+# WAF — AWS Managed Common, SQLi, Known Bad Inputs, rate limit, plus an optional
+# IP allowlist (ef4 pattern). When var.allowed_cidr_blocks is non-empty, a
+# priority-0 rule blocks any request whose source IP is not in the set; empty
+# list = public (no allowlist rule).
+
+resource "aws_wafv2_ip_set" "allowed" {
+  count              = length(var.allowed_cidr_blocks) > 0 ? 1 : 0
+  provider           = aws.us_east_1
+  name               = "airisk-allowed-ips"
+  scope              = "CLOUDFRONT"
+  ip_address_version = "IPV4"
+  addresses          = var.allowed_cidr_blocks
+}
 
 resource "aws_wafv2_web_acl" "site" {
   provider = aws.us_east_1
@@ -9,6 +19,35 @@ resource "aws_wafv2_web_acl" "site" {
 
   default_action {
     allow {}
+  }
+
+  # Rule 0: block anything not in the allowlist (only when an allowlist is set).
+  dynamic "rule" {
+    for_each = length(var.allowed_cidr_blocks) > 0 ? [1] : []
+    content {
+      name     = "IPAllowlist"
+      priority = 0
+
+      action {
+        block {}
+      }
+
+      statement {
+        not_statement {
+          statement {
+            ip_set_reference_statement {
+              arn = aws_wafv2_ip_set.allowed[0].arn
+            }
+          }
+        }
+      }
+
+      visibility_config {
+        sampled_requests_enabled   = true
+        cloudwatch_metrics_enabled = true
+        metric_name                = "airisk-cf-ip-block"
+      }
+    }
   }
 
   rule {
