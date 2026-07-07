@@ -2,7 +2,7 @@ locals {
   aws_region  = "us-east-1"
   project     = "airisk"
   environment = "prod"
-  account_id  = "921599274205"
+  account_id  = "637616607751"
 }
 
 remote_state {
